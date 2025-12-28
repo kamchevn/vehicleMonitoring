@@ -8,44 +8,32 @@ import java.time.LocalDateTime;
 @Entity
 public class Vehicle {
     @Id
-    private String internalCode;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     private String name;
     private Integer year;
     @Enumerated(EnumType.STRING)
+    private VehicleType type;
+    @Enumerated(EnumType.STRING)
     private Department department;
-    private String type;
     @Enumerated(EnumType.STRING)
     private Condition condition;
-    private String minCheckInterval;
-    @Nullable
-    private String maxCheckInterval;
-    @Nullable
-    private String counter;
-    @Nullable
-    private LocalDateTime lastInsertTime;
-    @Nullable
-    private LocalDateTime lastChecked;
     private boolean needsCheck = false;
+    private boolean hasWarnings = false;
 
     public Vehicle() {
     }
 
-    public Vehicle(String internalCode, String name, Integer year, Department department, String type, Condition condition, String minCheckInterval, String maxCheckInterval, String counter, LocalDateTime lastInsertTime, LocalDateTime lastChecked) {
-        this.internalCode = internalCode;
+    public Vehicle(String name, Integer year, Department department, VehicleType type, Condition condition) {
         this.name = name;
         this.year = year;
         this.department = department;
         this.type = type;
         this.condition = condition;
-        this.minCheckInterval = minCheckInterval;
-        this.maxCheckInterval = maxCheckInterval;
-        this.counter = counter;
-        this.lastInsertTime = lastInsertTime;
-        this.lastChecked = lastChecked;
     }
 
-    public String getInternalCode() {
-        return internalCode;
+    public Long getId() {
+        return id;
     }
 
     public String getName() {
@@ -72,11 +60,11 @@ public class Vehicle {
         this.department = department;
     }
 
-    public String getType() {
+    public VehicleType getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(VehicleType type) {
         this.type = type;
     }
 
@@ -88,51 +76,19 @@ public class Vehicle {
         this.condition = condition;
     }
 
-    public String getMinCheckInterval() {
-        return minCheckInterval;
-    }
-
-    public void setMinCheckInterval(String minCheckInterval) {
-        this.minCheckInterval = minCheckInterval;
-    }
-
-    public String getMaxCheckInterval() {
-        return maxCheckInterval;
-    }
-
-    public void setMaxCheckInterval(String maxCheckInterval) {
-        this.maxCheckInterval = maxCheckInterval;
-    }
-
-    public String getCounter() {
-        return counter;
-    }
-
-    public void setCounter(String counter) {
-        this.counter = counter;
-    }
-
-    public LocalDateTime getLastInsertTime() {
-        return lastInsertTime;
-    }
-
-    public void setLastInsertTime(LocalDateTime lastInsertTime) {
-        this.lastInsertTime = lastInsertTime;
-    }
-
-    public LocalDateTime getLastChecked() {
-        return lastChecked;
-    }
-
-    public void setLastChecked(LocalDateTime lastChecked) {
-        this.lastChecked = lastChecked;
-    }
-
     public boolean isNeedsCheck() {
         return needsCheck;
     }
 
     public void setNeedsCheck(boolean needsCheck) {
         this.needsCheck = needsCheck;
+    }
+
+    public boolean isHasWarnings() {
+        return hasWarnings;
+    }
+
+    public void setHasWarnings(boolean hasWarnings) {
+        this.hasWarnings = hasWarnings;
     }
 }

@@ -1,7 +1,7 @@
 package com.example.monitoringbackend.exceptions;
 
 public class VehicleNotFoundException extends RuntimeException{
-    public VehicleNotFoundException(String internalCode){
-        super(String.format("Vehicle with internal code %s not found.",internalCode));
+    public VehicleNotFoundException(Long id){
+        super(String.format("Vehicle with id %d not found.", id));
     }
 }

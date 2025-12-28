@@ -39,59 +39,53 @@ public class VehicleController {
         return ResponseEntity.ok(page);
     }
 
-    @GetMapping("/{internalCode}")
-    public ResponseEntity<?> getVehicleByInternalCode(@PathVariable String internalCode){
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getVehicleByInternalCode(@PathVariable Long id){
         try {
-            return ResponseEntity.ok(vehicleService.getVehicleByInternalCode(internalCode));
+            return ResponseEntity.ok(vehicleService.findById(id));
         } catch (VehicleNotFoundException ex) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
         }
     }
 
     @PostMapping("/create")
-    public ResponseEntity<Vehicle> createVehicle(@RequestParam String internalCode,
+    public ResponseEntity<Vehicle> createVehicle(
                                  @RequestParam String name,
                                  @RequestParam String year,
                                  @RequestParam String department,
                                  @RequestParam String type,
-                                 @RequestParam String condition,
-                                 @RequestParam String minCheckInterval,
-                                 @RequestParam String maxCheckInterval,
-                                 @RequestParam String counter){
-        return ResponseEntity.ok(vehicleService.createNewVehicle(internalCode,name,Integer.parseInt(year),department,type,condition,minCheckInterval,maxCheckInterval,counter));
+                                 @RequestParam String condition){
+        return ResponseEntity.ok(vehicleService.createNewVehicle(name,Integer.parseInt(year),department,type,condition));
     }
-    @PostMapping("/edit/{internalCode}")
-    public ResponseEntity<?> editVehicle(@PathVariable String internalCode,
+    @PostMapping("/edit/{id}")
+    public ResponseEntity<?> editVehicle(@PathVariable Long id,
                                @RequestParam String name,
                                @RequestParam String year,
                                @RequestParam String department,
                                @RequestParam String type,
-                               @RequestParam String condition,
-                               @RequestParam String minCheckInterval,
-                               @RequestParam String maxCheckInterval,
-                               @RequestParam String counter){
+                               @RequestParam String condition){
         try {
-            return ResponseEntity.ok(vehicleService.editVehicle(internalCode,name,Integer.parseInt(year),department,type,condition,minCheckInterval,maxCheckInterval,counter));
+            return ResponseEntity.ok(vehicleService.editVehicle(id,name,Integer.parseInt(year),department,type,condition));
         } catch (VehicleNotFoundException ex) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
         }
     }
 
-    @GetMapping("/delete/{internalCode}")
-    public ResponseEntity<?> deleteVehicle(@PathVariable String internalCode){
+    @GetMapping("/delete/{id}")
+    public ResponseEntity<?> deleteVehicle(@PathVariable Long id){
         try {
-            return ResponseEntity.ok(vehicleService.deleteVehicle(internalCode));
+            return ResponseEntity.ok(vehicleService.deleteVehicle(id));
         } catch (VehicleNotFoundException ex) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
         }
     }
 
-    @PostMapping("/insertInterval/{internalCode}")
-    public ResponseEntity<String> insertKilometersOrHoursForVehicle(@PathVariable String internalCode, @RequestParam String information,
+    @PostMapping("/insertInterval/{id}")
+    public ResponseEntity<String> insertKilometersOrHoursForVehicle(@PathVariable Long id, @RequestParam String information,
                                                                     @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime insertTime){
         try {
-            vehicleService.insertDistanceOrHoursForVehicle(internalCode, information, insertTime);
-            return ResponseEntity.ok(String.format("Successfully inserted %s for vehicle %s.", information, internalCode));
+            vehicleService.insertDistanceOrHoursForVehicle(id, information, insertTime);
+            return ResponseEntity.ok(String.format("Successfully inserted %s for vehicle %d.", information, id));
         }
         catch (IntervalDoesNotMatchException ex) {
             return ResponseEntity.badRequest().body(ex.getMessage());

@@ -2,13 +2,14 @@ package com.example.monitoringbackend.model;
 
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
-import lombok.Data;
+
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
-@Data
-public class ConditionCheck {
+public class ComponentCheck {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -21,11 +22,18 @@ public class ConditionCheck {
     private Condition currentCondition;
     private ConditionCheckType checkType;
 
-    public ConditionCheck(){
+    @ManyToMany
+    @JoinTable(
+            name = "condition_check_components",
+            joinColumns = @JoinColumn(name = "condition_check_id"),
+            inverseJoinColumns = @JoinColumn(name = "component_id")
+    )
+    private List<Component> componentsChecked = new ArrayList<>();
 
+    public ComponentCheck(){
     }
 
-    public ConditionCheck(String note, LocalDateTime timeOfEntry, Vehicle vehicle, Condition previousCondition, Condition currentCondition, ConditionCheckType checkType) {
+    public ComponentCheck(String note, LocalDateTime timeOfEntry, Vehicle vehicle, Condition previousCondition, Condition currentCondition, ConditionCheckType checkType) {
         this.note = note;
         this.timeOfEntry = timeOfEntry;
         this.vehicle = vehicle;
@@ -84,5 +92,13 @@ public class ConditionCheck {
 
     public void setCheckType(ConditionCheckType checkType) {
         this.checkType = checkType;
+    }
+
+    public List<Component> getComponentsChecked() {
+        return componentsChecked;
+    }
+
+    public void setComponentsChecked(List<Component> componentsChecked) {
+        this.componentsChecked = componentsChecked;
     }
 }
