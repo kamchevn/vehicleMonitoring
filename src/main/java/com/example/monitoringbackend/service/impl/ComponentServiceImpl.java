@@ -40,7 +40,7 @@ public class ComponentServiceImpl implements ComponentService {
         }
 
         if (measuringUnit != null && !measuringUnit.isEmpty()) {
-            spec = spec.and(filterEqualsV(Component.class, "template.measuringUnit", measuringUnit));
+            spec = spec.and(filterEqualsV(Component.class, "template.measuringUnitType", measuringUnit));
         }
 
         if (condition != null && !condition.isEmpty()) {
@@ -59,6 +59,11 @@ public class ComponentServiceImpl implements ComponentService {
     }
 
     @Override
+    public Component save(Component component) {
+        return componentRepository.save(component);
+    }
+
+    @Override
     public List<Component> saveAll(List<Component> components) {
         return componentRepository.saveAll(components);
     }
@@ -67,7 +72,7 @@ public class ComponentServiceImpl implements ComponentService {
     public Component createNewComponent(Vehicle vehicle, Long componentTemplateId, String condition, Integer counter) {
         Condition cnd = Condition.valueOf(condition);
         ComponentTemplate ct = componentTemplateService.findById(componentTemplateId);
-        return new Component(vehicle,ct,cnd,counter);
+        return componentRepository.save(new Component(vehicle,ct,cnd,counter));
     }
 
     @Override

@@ -1,7 +1,7 @@
 package com.example.monitoringbackend.model;
 
 public enum Condition {
-    VERY_GOOD,GOOD,POOR,OOS;
+    UNKNOWN,VERY_GOOD,GOOD,POOR,OOS;
 
     public Condition next() {
         int nextOrdinal = this.ordinal() + 1;

@@ -22,13 +22,8 @@ public class ComponentCheck {
     private Condition currentCondition;
     private ConditionCheckType checkType;
 
-    @ManyToMany
-    @JoinTable(
-            name = "condition_check_components",
-            joinColumns = @JoinColumn(name = "condition_check_id"),
-            inverseJoinColumns = @JoinColumn(name = "component_id")
-    )
-    private List<Component> componentsChecked = new ArrayList<>();
+    @OneToMany(mappedBy = "componentCheck", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ComponentCheckDetail> componentDetails = new ArrayList<>();
 
     public ComponentCheck(){
     }
@@ -94,11 +89,11 @@ public class ComponentCheck {
         this.checkType = checkType;
     }
 
-    public List<Component> getComponentsChecked() {
-        return componentsChecked;
-    }
+    public List<ComponentCheckDetail> getComponentDetails() { return componentDetails; }
+    public void setComponentDetails(List<ComponentCheckDetail> componentDetails) { this.componentDetails = componentDetails; }
 
-    public void setComponentsChecked(List<Component> componentsChecked) {
-        this.componentsChecked = componentsChecked;
+    public void addComponentDetail(ComponentCheckDetail detail) {
+        detail.setComponentCheck(this);
+        this.componentDetails.add(detail);
     }
 }

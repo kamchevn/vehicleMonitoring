@@ -30,12 +30,12 @@ public class VehicleController {
 
     @GetMapping("/page")
     public ResponseEntity<Page<Vehicle>> getProductPage(
-            @RequestParam(required = false) String department,
+            @RequestParam(required = false) String name,
             @RequestParam(required = false) String type,
             @RequestParam(defaultValue = "1") String pageNum,
             @RequestParam(defaultValue = "4") String pageSize
     ) {
-        Page<Vehicle> page = this.vehicleService.findPage(department, type, Integer.parseInt(pageNum)-1, Integer.parseInt(pageSize));
+        Page<Vehicle> page = this.vehicleService.findPage(name, type, Integer.parseInt(pageNum)-1, Integer.parseInt(pageSize));
         return ResponseEntity.ok(page);
     }
 
@@ -52,20 +52,26 @@ public class VehicleController {
     public ResponseEntity<Vehicle> createVehicle(
                                  @RequestParam String name,
                                  @RequestParam String year,
-                                 @RequestParam String department,
+                                 @RequestParam String totalKilometers,
                                  @RequestParam String type,
-                                 @RequestParam String condition){
-        return ResponseEntity.ok(vehicleService.createNewVehicle(name,Integer.parseInt(year),department,type,condition));
+                                 @RequestParam(required = false) String fuelType,
+                                 @RequestParam(required = false) String coolingType,
+                                 @RequestParam String condition,
+                                 @RequestParam String insertPeriodType){
+        return ResponseEntity.ok(vehicleService.createNewVehicle(name,Integer.parseInt(year),Integer.parseInt(totalKilometers),type,fuelType,coolingType,condition,insertPeriodType));
     }
     @PostMapping("/edit/{id}")
     public ResponseEntity<?> editVehicle(@PathVariable Long id,
                                @RequestParam String name,
                                @RequestParam String year,
-                               @RequestParam String department,
+                               @RequestParam String totalKilometers,
                                @RequestParam String type,
-                               @RequestParam String condition){
+                               @RequestParam(required = false) String fuelType,
+                               @RequestParam(required = false) String coolingType,
+                               @RequestParam String condition,
+                               @RequestParam String insertPeriodType){
         try {
-            return ResponseEntity.ok(vehicleService.editVehicle(id,name,Integer.parseInt(year),department,type,condition));
+            return ResponseEntity.ok(vehicleService.editVehicle(id,name,Integer.parseInt(year),Integer.parseInt(totalKilometers),type,fuelType,coolingType,condition,insertPeriodType));
         } catch (VehicleNotFoundException ex) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
         }

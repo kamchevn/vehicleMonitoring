@@ -9,6 +9,7 @@ public interface ComponentService {
     Component findById(Long id);
     Page<Component> findPage(Long vehicleId, String measuringUnit, String condition, Integer pageNum, Integer pageSize);
     List<Component> findAll();
+    Component save(Component component);
     List<Component> saveAll(List<Component> components);
     Component createNewComponent(Vehicle vehicle, Long componentTemplateId, String condition, Integer counter);
     Component editComponent(Long id, Vehicle vehicle, Long componentTemplateId, String condition, Integer counter);

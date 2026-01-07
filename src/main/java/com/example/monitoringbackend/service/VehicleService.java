@@ -10,8 +10,8 @@ public interface VehicleService {
     Vehicle findById(Long id);
     Page<Vehicle> findPage(String name, String type, Integer pageNum, Integer pageSize);
     List<Vehicle> findAll();
-    Vehicle createNewVehicle(String name, int year, String department, String type, String condition);
-    Vehicle editVehicle(Long id, String name, int year, String department, String type, String condition);
+    Vehicle createNewVehicle(String name, int year, int totalKilometers, String type, String fuelType, String coolingType, String condition, String insertPeriodType);
+    Vehicle editVehicle(Long id, String name, int year, int totalKilometers, String type, String fuelType, String coolingType, String condition, String insertPeriodType);
     Vehicle deleteVehicle(Long id);
     void insertDistanceOrHoursForVehicle(Long id, String information, LocalDateTime insertTime);
     void changeVehicleCondition(Long id);

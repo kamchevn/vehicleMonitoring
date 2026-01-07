@@ -3,6 +3,8 @@ package com.example.monitoringbackend.web;
 import com.example.monitoringbackend.exceptions.IntervalDoesNotMatchException;
 import com.example.monitoringbackend.model.Component;
 import com.example.monitoringbackend.model.ComponentCheck;
+import com.example.monitoringbackend.model.ComponentCheckDetail;
+import com.example.monitoringbackend.model.dto.ComponentCheckRequestDto;
 import com.example.monitoringbackend.service.ComponentCheckService;
 import com.example.monitoringbackend.service.ComponentService;
 import org.springframework.data.domain.Page;
@@ -38,20 +40,31 @@ public class ComponentCheckController {
         return ResponseEntity.ok(page);
     }
     @PostMapping("/{id}")
-    public ResponseEntity<String> checkConditionForVehicle(@PathVariable Long id,
-                                                           @RequestParam String checkType,
-                                                           @RequestParam String note,
-                                                           @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime checkTime,
-                                                           @RequestParam List<Long> componentIds){
+    public ResponseEntity<String> checkConditionForVehicle(
+            @PathVariable Long id,
+            @RequestBody ComponentCheckRequestDto request) {
+
         try {
-            List<Component> components = new ArrayList<>();
-            for (Long componentId : componentIds){
-                components.add(componentService.findById(componentId));
-            }
-            componentCheckService.checkConditionForVehicle(id,checkType,note,checkTime,components);
-            return ResponseEntity.ok(String.format("Successfully inserted new condition check for vehicle %d.", id));
-        }
-        catch (IntervalDoesNotMatchException ex) {
+            List<ComponentCheckDetail> details = request.getComponentDetails().stream().map(dto -> {
+                Component component = componentService.findById(dto.getComponentId());
+                ComponentCheckDetail detail = new ComponentCheckDetail();
+                detail.setComponent(component);
+                detail.setCurrentCondition(dto.getCurrentCondition());
+                return detail;
+            }).toList();
+
+            componentCheckService.checkConditionForVehicle(
+                    id,
+                    request.getCheckType(),
+                    request.getNote(),
+                    request.getCheckTime(),
+                    details
+            );
+
+            return ResponseEntity.ok(
+                    String.format("Successfully inserted new condition check for vehicle %d.", id)
+            );
+        } catch (IntervalDoesNotMatchException ex) {
             return ResponseEntity.badRequest().body(ex.getMessage());
         }
     }

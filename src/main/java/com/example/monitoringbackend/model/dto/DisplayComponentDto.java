@@ -4,6 +4,7 @@ import com.example.monitoringbackend.model.*;
 
 public record DisplayComponentDto(
         Long id,
+        String name,
         ComponentType type,
         Condition condition,
         IntervalUnit measuringUnitType,
@@ -15,6 +16,7 @@ public record DisplayComponentDto(
 
         return new DisplayComponentDto(
                 component.getId(),
+                template.getName(),
                 template.getComponentType(),
                 component.getCondition(),
                 template.getMeasuringUnitType(),

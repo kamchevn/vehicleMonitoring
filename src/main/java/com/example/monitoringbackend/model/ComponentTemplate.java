@@ -9,6 +9,8 @@ public class ComponentTemplate {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String name;
+
     @Enumerated(EnumType.STRING)
     private VehicleType vehicleType;
 
@@ -24,7 +26,8 @@ public class ComponentTemplate {
     public ComponentTemplate() {
     }
 
-    public ComponentTemplate(VehicleType vehicleType, ComponentType componentType, IntervalUnit measuringUnitType, Integer minCheckInterval, Integer warningInterval) {
+    public ComponentTemplate(String name, VehicleType vehicleType, ComponentType componentType, IntervalUnit measuringUnitType, Integer minCheckInterval, Integer warningInterval) {
+        this.name = name;
         this.vehicleType = vehicleType;
         this.componentType = componentType;
         this.measuringUnitType = measuringUnitType;
@@ -34,6 +37,14 @@ public class ComponentTemplate {
 
     public Long getId() {
         return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public VehicleType getVehicleType() {

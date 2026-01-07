@@ -61,30 +61,52 @@ public class VehicleServiceImpl implements VehicleService {
     }
 
     @Override
-    public Vehicle createNewVehicle(String name, int year, String department, String type, String condition) {
-        Department dpt = Department.valueOf(department);
+    public Vehicle createNewVehicle(String name, int year, int totalKilometers, String type, String fuelType, String coolingType, String condition, String insertPeriodType) {
         Condition cdn = Condition.valueOf(condition);
         VehicleType vt = VehicleType.valueOf(type);
-        return vehicleRepository.save(new Vehicle(name,year,dpt,vt,cdn));
+        VehicleFuelType ft = null;
+        if(fuelType != null){
+            ft = VehicleFuelType.valueOf(fuelType);
+        }
+        CoolingType ct = null;
+        if(coolingType != null){
+            ct = CoolingType.valueOf(coolingType);
+        }
+        IntervalInsertPeriod insertPeriod = IntervalInsertPeriod.valueOf(insertPeriodType);
+        return vehicleRepository.save(new Vehicle(name,year,totalKilometers,vt,ft,ct,cdn,insertPeriod));
     }
 
     @Override
-    public Vehicle editVehicle(Long id, String name, int year, String department, String type, String condition) {
+    public Vehicle editVehicle(Long id, String name, int year, int totalKilometers, String type, String fuelType, String coolingType, String condition, String insertPeriodType) {
         Vehicle vehicle = this.findById(id);
-        Department dpt = Department.valueOf(department);
         Condition cdn = Condition.valueOf(condition);
         VehicleType vt = VehicleType.valueOf(type);
+        VehicleFuelType ft = null;
+        if(fuelType != null){
+            ft = VehicleFuelType.valueOf(fuelType);
+        }
+        CoolingType ct = null;
+        if(coolingType != null){
+            ct = CoolingType.valueOf(coolingType);
+        }
+        IntervalInsertPeriod insertPeriod = IntervalInsertPeriod.valueOf(insertPeriodType);
         vehicle.setName(name);
         vehicle.setYear(year);
-        vehicle.setDepartment(dpt);
+        vehicle.setTotalKilometers(totalKilometers);
         vehicle.setType(vt);
+        vehicle.setFuelType(ft);
         vehicle.setCondition(cdn);
+        vehicle.setInsertPeriodType(insertPeriod);
         return vehicleRepository.save(vehicle);
     }
 
     @Override
     public Vehicle deleteVehicle(Long id) {
         Vehicle vehicle = this.findById(id);
+        List<Component> components = componentService.findAllByVehicle(vehicle);
+        for(Component component : components){
+            componentService.deleteComponent(component.getId());
+        }
         vehicleRepository.delete(vehicle);
         return vehicle;
     }
@@ -133,30 +155,32 @@ public class VehicleServiceImpl implements VehicleService {
         Vehicle vehicle = this.findById(id);
         List<Component> components = componentService.findAllByVehicle(vehicle);
 
-        for(Component component : components){
+        for (Component component : components) {
+            if (component.getCondition() == Condition.UNKNOWN) {
+                continue;
+            }
+
             ComponentTemplate template = component.getTemplate();
             int counter = component.getCounter();
             int warn = template.getWarningInterval();
             int min = template.getMinCheckInterval();
+
             Condition con;
             if (counter < warn) {
                 con = Condition.VERY_GOOD;
-            }
-            else if (counter < min) {
+            } else if (counter < min) {
                 con = Condition.GOOD;
-            }
-            else if (counter < min * 1.3) {
+            } else if (counter < min * 1.3) {
                 con = Condition.POOR;
-            }
-            else {
+            } else {
                 con = Condition.OOS;
             }
+
             component.setCondition(con);
             component.setNeedsCheck(con == Condition.POOR || con == Condition.OOS);
         }
-        componentService.saveAll(components);
 
-        int total = components.size();
+        componentService.saveAll(components);
 
         Map<Condition, Long> count =
                 components.stream()
@@ -165,22 +189,28 @@ public class VehicleServiceImpl implements VehicleService {
                                 Collectors.counting()
                         ));
 
+        long unknown = count.getOrDefault(Condition.UNKNOWN, 0L);
+
+        if (unknown > 0) {
+            vehicle.setCondition(Condition.UNKNOWN);
+            vehicleRepository.save(vehicle);
+            return;
+        }
+
+        int total = components.size();
+
         long vg = count.getOrDefault(Condition.VERY_GOOD, 0L);
         long g  = count.getOrDefault(Condition.GOOD, 0L);
         long p  = count.getOrDefault(Condition.POOR, 0L);
         long o  = count.getOrDefault(Condition.OOS, 0L);
 
-        //default, pa potoa pravi proverki i gi mesti spored components
         Condition con = Condition.VERY_GOOD;
-        vehicle.setCondition(Condition.VERY_GOOD);
 
         if ((double) o / total >= 0.2) {
             con = Condition.OOS;
-        }
-        else if ((double) (p + o) / total >= 0.3) {
+        } else if ((double) (p + o) / total >= 0.3) {
             con = Condition.POOR;
-        }
-        else if ((double) (g + vg) / total >= 0.7) {
+        } else if ((double) (g + vg) / total >= 0.7) {
             con = Condition.GOOD;
         }
 

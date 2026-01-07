@@ -24,8 +24,8 @@ public class Component {
     @Nullable
     private LocalDateTime lastChecked = null;
 
-    @ManyToMany(mappedBy = "componentsChecked")
-    private List<ComponentCheck> componentChecks = new ArrayList<>();
+    @OneToMany(mappedBy = "component")
+    private List<ComponentCheckDetail> componentCheckDetails = new ArrayList<>();
 
     private boolean warningFlag = false;
     private boolean needsCheck = false;
@@ -106,11 +106,11 @@ public class Component {
         this.needsCheck = needsCheck;
     }
 
-    public List<ComponentCheck> getComponentChecks() {
-        return componentChecks;
+    public List<ComponentCheckDetail> getComponentCheckDetails() {
+        return componentCheckDetails;
     }
 
-    public void setComponentChecks(List<ComponentCheck> componentChecks) {
-        this.componentChecks = componentChecks;
+    public void setComponentCheckDetails(List<ComponentCheckDetail> componentCheckDetails) {
+        this.componentCheckDetails = componentCheckDetails;
     }
 }

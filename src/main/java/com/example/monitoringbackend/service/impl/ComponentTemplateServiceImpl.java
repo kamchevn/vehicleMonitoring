@@ -1,6 +1,7 @@
 package com.example.monitoringbackend.service.impl;
 
 import com.example.monitoringbackend.model.ComponentTemplate;
+import com.example.monitoringbackend.model.ComponentType;
 import com.example.monitoringbackend.model.VehicleType;
 import com.example.monitoringbackend.repository.ComponentTemplateRepository;
 import com.example.monitoringbackend.service.ComponentTemplateService;
@@ -22,8 +23,13 @@ public class ComponentTemplateServiceImpl implements ComponentTemplateService {
     }
 
     @Override
-    public List<ComponentTemplate> getTemplatesForVehicle(VehicleType vehicleType) {
+    public List<ComponentTemplate> getTemplatesForVehicleType(VehicleType vehicleType) {
         return repository.findAllByVehicleType(vehicleType);
+    }
+
+    @Override
+    public List<ComponentTemplate> getTemplatesForVehicleTypeAndComponentType(VehicleType vehicleType, ComponentType componentType) {
+        return repository.findAllByVehicleTypeAndComponentType(vehicleType,componentType);
     }
 
     @Override

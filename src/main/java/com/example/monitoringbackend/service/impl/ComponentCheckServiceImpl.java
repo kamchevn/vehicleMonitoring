@@ -48,34 +48,37 @@ public class ComponentCheckServiceImpl implements ComponentCheckService {
     }
 
     @Override
-    public void checkConditionForVehicle(Long id, String checkType, String note, LocalDateTime checkTime, List<Component> componentsChecked) {
-        Vehicle vehicle = vehicleService.findById(id);
-
-        Condition previousCondition = vehicle.getCondition();
-
-        for (Component component : componentsChecked) {
-            component.setCounter(0);
-            component.setNeedsCheck(false);
-            component.setCondition(Condition.VERY_GOOD);
-        }
-        componentService.saveAll(componentsChecked);
-
-        vehicleService.changeVehicleCondition(id);
-
-        Vehicle updatedVehicle = vehicleService.findById(id);
-        Condition currentCondition = updatedVehicle.getCondition();
+    public void checkConditionForVehicle(Long vehicleId, String checkType, String note, LocalDateTime checkTime, List<ComponentCheckDetail> componentDetails) {
+        Vehicle vehicle = vehicleService.findById(vehicleId);
+        Condition previousVehicleCondition = vehicle.getCondition();
 
         ComponentCheck check = new ComponentCheck();
-        check.setVehicle(updatedVehicle);
+        check.setVehicle(vehicle);
         check.setCheckType(ConditionCheckType.valueOf(checkType));
-        check.setPreviousCondition(previousCondition);
-        check.setCurrentCondition(currentCondition);
+        check.setPreviousCondition(previousVehicleCondition);
         check.setTimeOfEntry(checkTime);
         check.setNote((note == null || note.isBlank()) ? null : note);
 
-        check.getComponentsChecked().addAll(componentsChecked);
+        for (ComponentCheckDetail detail : componentDetails) {
+            Component component = componentService.findById(detail.getComponent().getId());
+            if (detail.getPreviousCondition() == null) {
+                detail.setPreviousCondition(component.getCondition());
+            }
+            component.setCondition(detail.getCurrentCondition());
+            component.setCounter(0);
+            component.setNeedsCheck(false);
 
-        componentsChecked.forEach(c -> c.getComponentChecks().add(check));
+            componentService.save(component);
+
+            detail.setComponentCheck(check);
+            detail.setComponent(component);
+
+            check.addComponentDetail(detail);
+        }
+
+        vehicleService.changeVehicleCondition(vehicleId);
+        Vehicle updatedVehicle = vehicleService.findById(vehicleId);
+        check.setCurrentCondition(updatedVehicle.getCondition());
 
         componentCheckRepository.save(check);
     }

@@ -3,8 +3,6 @@ package com.example.monitoringbackend.model;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 
-import java.time.LocalDateTime;
-
 @Entity
 public class Vehicle {
     @Id
@@ -12,24 +10,35 @@ public class Vehicle {
     private Long id;
     private String name;
     private Integer year;
+    private Integer totalKilometers;
     @Enumerated(EnumType.STRING)
     private VehicleType type;
+    @Nullable
     @Enumerated(EnumType.STRING)
-    private Department department;
+    private VehicleFuelType fuelType;
+    @Nullable
+    @Enumerated(EnumType.STRING)
+    private CoolingType coolingType;
     @Enumerated(EnumType.STRING)
     private Condition condition;
     private boolean needsCheck = false;
     private boolean hasWarnings = false;
 
+    @Enumerated(EnumType.STRING)
+    private IntervalInsertPeriod insertPeriodType;
+
     public Vehicle() {
     }
 
-    public Vehicle(String name, Integer year, Department department, VehicleType type, Condition condition) {
+    public Vehicle(String name, Integer year, Integer totalKilometers, VehicleType type, VehicleFuelType fuelType, CoolingType coolingType, Condition condition, IntervalInsertPeriod insertPeriodType) {
         this.name = name;
         this.year = year;
-        this.department = department;
+        this.totalKilometers = totalKilometers;
         this.type = type;
+        this.fuelType = fuelType;
+        this.coolingType = coolingType;
         this.condition = condition;
+        this.insertPeriodType = insertPeriodType;
     }
 
     public Long getId() {
@@ -52,12 +61,12 @@ public class Vehicle {
         this.year = year;
     }
 
-    public Department getDepartment() {
-        return department;
+    public Integer getTotalKilometers() {
+        return totalKilometers;
     }
 
-    public void setDepartment(Department department) {
-        this.department = department;
+    public void setTotalKilometers(Integer totalKilometers) {
+        this.totalKilometers = totalKilometers;
     }
 
     public VehicleType getType() {
@@ -66,6 +75,22 @@ public class Vehicle {
 
     public void setType(VehicleType type) {
         this.type = type;
+    }
+
+    public VehicleFuelType getFuelType() {
+        return fuelType;
+    }
+
+    public void setFuelType(VehicleFuelType fuelType) {
+        this.fuelType = fuelType;
+    }
+
+    public CoolingType getCoolingType() {
+        return coolingType;
+    }
+
+    public void setCoolingType(CoolingType coolingType) {
+        this.coolingType = coolingType;
     }
 
     public Condition getCondition() {
@@ -90,5 +115,13 @@ public class Vehicle {
 
     public void setHasWarnings(boolean hasWarnings) {
         this.hasWarnings = hasWarnings;
+    }
+
+    public IntervalInsertPeriod getInsertPeriodType() {
+        return insertPeriodType;
+    }
+
+    public void setInsertPeriodType(IntervalInsertPeriod insertPeriodType) {
+        this.insertPeriodType = insertPeriodType;
     }
 }
