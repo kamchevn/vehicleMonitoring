@@ -1,8 +1,11 @@
 package com.example.monitoringbackend.service.specifications;
 
+import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Root;
 import org.springframework.data.jpa.domain.Specification;
+
+import java.util.Collection;
 
 
 public class FieldFilterSpecification {
@@ -52,6 +55,18 @@ public class FieldFilterSpecification {
             res = res.get(p);
         }
         return res;
+    }
+
+    public static <T, V> Specification<T> filterIn(Class<T> clazz, String field, Collection<V> values) {
+        if (values == null || values.isEmpty()) {
+            return null;
+        }
+
+        return (root, query, criteriaBuilder) -> {
+            @SuppressWarnings("unchecked")
+            Expression<V> path = (Expression<V>) fieldToPath(field, root);
+            return path.in(values);
+        };
     }
 }
 

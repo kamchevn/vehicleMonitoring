@@ -12,8 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-import static com.example.monitoringbackend.service.specifications.FieldFilterSpecification.filterEquals;
-import static com.example.monitoringbackend.service.specifications.FieldFilterSpecification.filterEqualsV;
+import static com.example.monitoringbackend.service.specifications.FieldFilterSpecification.*;
 
 @Service
 public class ComponentServiceImpl implements ComponentService {
@@ -32,7 +31,7 @@ public class ComponentServiceImpl implements ComponentService {
     }
 
     @Override
-    public Page<Component> findPage(Long vehicleId, String measuringUnit, String condition, Integer pageNum, Integer pageSize) {
+    public Page<Component> findPage(Long vehicleId, String measuringUnit, List<String> conditions, Integer pageNum, Integer pageSize) {
         Specification<Component> spec = Specification.allOf();
 
         if (vehicleId != null) {
@@ -43,8 +42,8 @@ public class ComponentServiceImpl implements ComponentService {
             spec = spec.and(filterEqualsV(Component.class, "template.measuringUnitType", measuringUnit));
         }
 
-        if (condition != null && !condition.isEmpty()) {
-            spec = spec.and(filterEqualsV(Component.class, "condition", condition));
+        if (conditions != null && !conditions.isEmpty()) {
+            spec = spec.and(filterIn(Component.class, "condition", conditions));
         }
 
         return this.componentRepository.findAll(

@@ -1,6 +1,7 @@
 package com.example.monitoringbackend.web;
 
 import com.example.monitoringbackend.exceptions.IntervalDoesNotMatchException;
+import com.example.monitoringbackend.exceptions.VehicleNotFoundException;
 import com.example.monitoringbackend.model.Component;
 import com.example.monitoringbackend.model.ComponentCheck;
 import com.example.monitoringbackend.model.ComponentCheckDetail;
@@ -9,11 +10,10 @@ import com.example.monitoringbackend.service.ComponentCheckService;
 import com.example.monitoringbackend.service.ComponentService;
 import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -27,6 +27,15 @@ public class ComponentCheckController {
     public ComponentCheckController(ComponentCheckService componentCheckService, ComponentService componentService) {
         this.componentCheckService = componentCheckService;
         this.componentService = componentService;
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getCheckById (@PathVariable Long id){
+        try {
+            return ResponseEntity.ok(componentCheckService.findById(id));
+        } catch (VehicleNotFoundException ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+        }
     }
 
     @GetMapping("/page")

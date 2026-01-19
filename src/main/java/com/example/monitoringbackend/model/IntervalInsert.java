@@ -1,15 +1,10 @@
 package com.example.monitoringbackend.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Data
-@NoArgsConstructor
 public class IntervalInsert {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,11 +12,53 @@ public class IntervalInsert {
     private LocalDateTime timeOfEntry;
     @ManyToOne
     private Vehicle vehicle;
-    private String interval;
+    @Enumerated(EnumType.STRING)
+    private IntervalUnit unit;
+    private Integer amount;
 
-    public IntervalInsert(LocalDateTime timeOfEntry, Vehicle vehicle, String interval) {
+    public IntervalInsert() {
+    }
+
+    public IntervalInsert(LocalDateTime timeOfEntry, Vehicle vehicle, IntervalUnit unit, Integer amount) {
         this.timeOfEntry = timeOfEntry;
         this.vehicle = vehicle;
-        this.interval = interval;
+        this.unit = unit;
+        this.amount = amount;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public LocalDateTime getTimeOfEntry() {
+        return timeOfEntry;
+    }
+
+    public void setTimeOfEntry(LocalDateTime timeOfEntry) {
+        this.timeOfEntry = timeOfEntry;
+    }
+
+    public Vehicle getVehicle() {
+        return vehicle;
+    }
+
+    public void setVehicle(Vehicle vehicle) {
+        this.vehicle = vehicle;
+    }
+
+    public IntervalUnit getUnit() {
+        return unit;
+    }
+
+    public void setUnit(IntervalUnit unit) {
+        this.unit = unit;
+    }
+
+    public Integer getAmount() {
+        return amount;
+    }
+
+    public void setAmount(Integer amount) {
+        this.amount = amount;
     }
 }

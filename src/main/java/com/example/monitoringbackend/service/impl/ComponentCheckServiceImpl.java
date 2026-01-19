@@ -1,6 +1,7 @@
 package com.example.monitoringbackend.service.impl;
 
 
+import com.example.monitoringbackend.exceptions.CheckNotFoundException;
 import com.example.monitoringbackend.model.*;
 import com.example.monitoringbackend.repository.ComponentCheckRepository;
 import com.example.monitoringbackend.service.ComponentService;
@@ -9,6 +10,7 @@ import com.example.monitoringbackend.service.VehicleService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -16,7 +18,7 @@ import java.util.List;
 import static com.example.monitoringbackend.service.specifications.FieldFilterSpecification.filterEquals;
 import static com.example.monitoringbackend.service.specifications.FieldFilterSpecification.filterEqualsV;
 
-@org.springframework.stereotype.Service
+@Service
 public class ComponentCheckServiceImpl implements ComponentCheckService {
     private final ComponentCheckRepository componentCheckRepository;
     private final VehicleService vehicleService;
@@ -26,6 +28,11 @@ public class ComponentCheckServiceImpl implements ComponentCheckService {
         this.componentCheckRepository = componentCheckRepository;
         this.vehicleService = vehicleService;
         this.componentService = componentService;
+    }
+
+    @Override
+    public ComponentCheck findById(Long checkId) {
+        return componentCheckRepository.findById(checkId).orElseThrow(() -> new CheckNotFoundException(checkId));
     }
 
     @Override
@@ -64,9 +71,26 @@ public class ComponentCheckServiceImpl implements ComponentCheckService {
             if (detail.getPreviousCondition() == null) {
                 detail.setPreviousCondition(component.getCondition());
             }
-            component.setCondition(detail.getCurrentCondition());
-            component.setCounter(0);
-            component.setNeedsCheck(false);
+            ComponentTemplate template = component.getTemplate();
+            int counter;
+
+            Condition con = detail.getCurrentCondition();
+            if (con == Condition.VERY_GOOD) {
+                counter = 0;
+            } else if (con == Condition.GOOD) {
+                counter = template.getWarningInterval();
+            } else if (con == Condition.POOR) {
+                counter = template.getMinCheckInterval();
+            } else {
+                counter = template.getMinCheckInterval();
+                counter *= 1.3;
+            }
+
+            component.setCondition(con);
+            component.setWarningFlag(con == Condition.GOOD);
+            component.setNeedsCheck(con == Condition.POOR || con == Condition.OOS);
+            component.setCounter(counter);
+            component.setLastChecked(LocalDateTime.now());
 
             componentService.save(component);
 
@@ -79,7 +103,6 @@ public class ComponentCheckServiceImpl implements ComponentCheckService {
         vehicleService.changeVehicleCondition(vehicleId);
         Vehicle updatedVehicle = vehicleService.findById(vehicleId);
         check.setCurrentCondition(updatedVehicle.getCondition());
-
         componentCheckRepository.save(check);
     }
 }

@@ -3,6 +3,8 @@ package com.example.monitoringbackend.model;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 public class Vehicle {
     @Id
@@ -19,6 +21,9 @@ public class Vehicle {
     @Nullable
     @Enumerated(EnumType.STRING)
     private CoolingType coolingType;
+    @Nullable
+    @Enumerated(EnumType.STRING)
+    private DrivenType drivenType;
     @Enumerated(EnumType.STRING)
     private Condition condition;
     private boolean needsCheck = false;
@@ -27,16 +32,20 @@ public class Vehicle {
     @Enumerated(EnumType.STRING)
     private IntervalInsertPeriod insertPeriodType;
 
+    private LocalDateTime lastInsertKilometers = null;
+    private LocalDateTime lastInsertFuel = null;
+
     public Vehicle() {
     }
 
-    public Vehicle(String name, Integer year, Integer totalKilometers, VehicleType type, VehicleFuelType fuelType, CoolingType coolingType, Condition condition, IntervalInsertPeriod insertPeriodType) {
+    public Vehicle(String name, Integer year, Integer totalKilometers, VehicleType type, VehicleFuelType fuelType, CoolingType coolingType, DrivenType drivenType, Condition condition, IntervalInsertPeriod insertPeriodType) {
         this.name = name;
         this.year = year;
         this.totalKilometers = totalKilometers;
         this.type = type;
         this.fuelType = fuelType;
         this.coolingType = coolingType;
+        this.drivenType = drivenType;
         this.condition = condition;
         this.insertPeriodType = insertPeriodType;
     }
@@ -93,6 +102,14 @@ public class Vehicle {
         this.coolingType = coolingType;
     }
 
+    public DrivenType getDrivenType() {
+        return drivenType;
+    }
+
+    public void setDrivenType(DrivenType drivenType) {
+        this.drivenType = drivenType;
+    }
+
     public Condition getCondition() {
         return condition;
     }
@@ -123,5 +140,21 @@ public class Vehicle {
 
     public void setInsertPeriodType(IntervalInsertPeriod insertPeriodType) {
         this.insertPeriodType = insertPeriodType;
+    }
+
+    public LocalDateTime getLastInsertKilometers() {
+        return lastInsertKilometers;
+    }
+
+    public void setLastInsertKilometers(LocalDateTime lastInsertKilometers) {
+        this.lastInsertKilometers = lastInsertKilometers;
+    }
+
+    public LocalDateTime getLastInsertFuel() {
+        return lastInsertFuel;
+    }
+
+    public void setLastInsertFuel(LocalDateTime lastInsertFuel) {
+        this.lastInsertFuel = lastInsertFuel;
     }
 }

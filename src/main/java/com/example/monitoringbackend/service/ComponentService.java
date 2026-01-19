@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface ComponentService {
     Component findById(Long id);
-    Page<Component> findPage(Long vehicleId, String measuringUnit, String condition, Integer pageNum, Integer pageSize);
+    Page<Component> findPage(Long vehicleId, String measuringUnit, List<String> conditions, Integer pageNum, Integer pageSize);
     List<Component> findAll();
     Component save(Component component);
     List<Component> saveAll(List<Component> components);

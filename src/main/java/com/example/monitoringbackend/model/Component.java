@@ -1,5 +1,6 @@
 package com.example.monitoringbackend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 
@@ -23,8 +24,8 @@ public class Component {
     private LocalDateTime lastInsertTime = null;
     @Nullable
     private LocalDateTime lastChecked = null;
-
-    @OneToMany(mappedBy = "component")
+    @JsonIgnore
+    @OneToMany(mappedBy = "component", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ComponentCheckDetail> componentCheckDetails = new ArrayList<>();
 
     private boolean warningFlag = false;

@@ -1,8 +1,6 @@
 package com.example.monitoringbackend.model;
 
-import com.example.monitoringbackend.model.Component;
-import com.example.monitoringbackend.model.ComponentCheck;
-import com.example.monitoringbackend.model.Condition;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 @Entity
@@ -10,12 +8,12 @@ public class ComponentCheckDetail {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "component_check_id")
     private ComponentCheck componentCheck;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "component_id")
     private Component component;
 

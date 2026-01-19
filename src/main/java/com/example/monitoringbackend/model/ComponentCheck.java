@@ -16,7 +16,7 @@ public class ComponentCheck {
     @Nullable
     private String note;
     private LocalDateTime timeOfEntry;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Vehicle vehicle;
     private Condition previousCondition;
     private Condition currentCondition;
@@ -95,5 +95,9 @@ public class ComponentCheck {
     public void addComponentDetail(ComponentCheckDetail detail) {
         detail.setComponentCheck(this);
         this.componentDetails.add(detail);
+    }
+    public void removeComponentDetail(ComponentCheckDetail detail) {
+        detail.setComponentCheck(null);
+        this.componentDetails.remove(detail);
     }
 }

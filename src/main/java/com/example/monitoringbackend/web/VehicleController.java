@@ -56,9 +56,10 @@ public class VehicleController {
                                  @RequestParam String type,
                                  @RequestParam(required = false) String fuelType,
                                  @RequestParam(required = false) String coolingType,
+                                 @RequestParam(required = false) String drivenType,
                                  @RequestParam String condition,
                                  @RequestParam String insertPeriodType){
-        return ResponseEntity.ok(vehicleService.createNewVehicle(name,Integer.parseInt(year),Integer.parseInt(totalKilometers),type,fuelType,coolingType,condition,insertPeriodType));
+        return ResponseEntity.ok(vehicleService.createNewVehicle(name,Integer.parseInt(year),Integer.parseInt(totalKilometers),type,fuelType,coolingType,drivenType,condition,insertPeriodType));
     }
     @PostMapping("/edit/{id}")
     public ResponseEntity<?> editVehicle(@PathVariable Long id,
@@ -68,10 +69,11 @@ public class VehicleController {
                                @RequestParam String type,
                                @RequestParam(required = false) String fuelType,
                                @RequestParam(required = false) String coolingType,
+                               @RequestParam(required = false) String drivenType,
                                @RequestParam String condition,
                                @RequestParam String insertPeriodType){
         try {
-            return ResponseEntity.ok(vehicleService.editVehicle(id,name,Integer.parseInt(year),Integer.parseInt(totalKilometers),type,fuelType,coolingType,condition,insertPeriodType));
+            return ResponseEntity.ok(vehicleService.editVehicle(id,name,Integer.parseInt(year),Integer.parseInt(totalKilometers),type,fuelType,coolingType,drivenType,condition,insertPeriodType));
         } catch (VehicleNotFoundException ex) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
         }
@@ -86,12 +88,13 @@ public class VehicleController {
         }
     }
 
-    @PostMapping("/insertInterval/{id}")
-    public ResponseEntity<String> insertKilometersOrHoursForVehicle(@PathVariable Long id, @RequestParam String information,
+    @PostMapping("/insertInterval/{vehicleId}")
+    public ResponseEntity<String> insertKilometersOrHoursForVehicle(@PathVariable Long vehicleId, @RequestParam String unitType, @RequestParam String amount,
                                                                     @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime insertTime){
         try {
-            vehicleService.insertDistanceOrHoursForVehicle(id, information, insertTime);
-            return ResponseEntity.ok(String.format("Successfully inserted %s for vehicle %d.", information, id));
+            Integer toAdd = Integer.parseInt(amount);
+            vehicleService.insertDistanceOrFuelForVehicle(vehicleId, unitType, toAdd, insertTime);
+            return ResponseEntity.ok(String.format("Successfully inserted %d%s for vehicle %d.", toAdd, unitType.equals("KILOMETERS") ? "km" : "L", vehicleId));
         }
         catch (IntervalDoesNotMatchException ex) {
             return ResponseEntity.badRequest().body(ex.getMessage());

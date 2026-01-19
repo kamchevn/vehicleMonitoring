@@ -40,7 +40,12 @@ public class ComponentController {
             @RequestParam(defaultValue = "4") String pageSize
     ) {
         Long id = Long.parseLong(vehicleId);
-        Page<Component> page = this.componentService.findPage(id, measuringUnit, condition, Integer.parseInt(pageNum)-1, Integer.parseInt(pageSize));
+
+        List<String> conditions = null;
+        if (condition != null && !condition.isBlank()) {
+            conditions = List.of(condition.split(","));
+        }
+        Page<Component> page = this.componentService.findPage(id, measuringUnit, conditions, Integer.parseInt(pageNum)-1, Integer.parseInt(pageSize));
         Page<DisplayComponentDto> dtoPage = page.map(DisplayComponentDto::from);
         return ResponseEntity.ok(dtoPage);
     }

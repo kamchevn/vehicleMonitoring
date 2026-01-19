@@ -19,23 +19,45 @@ public class ComponentTemplateController {
     @GetMapping("/{vehicleType}")
     private List<ComponentTemplate> getTemplatesForVehicleType(@PathVariable String vehicleType,
                                                                @RequestParam(required = false) String fuelType,
-                                                               @RequestParam(required = false) String coolingType){
+                                                               @RequestParam(required = false) String coolingType,
+                                                               @RequestParam(required = false) String drivenType){
         VehicleType vt = VehicleType.valueOf(vehicleType);
         List<ComponentTemplate> componentTemplates = componentTemplateService.getTemplatesForVehicleType(vt);
         if(fuelType != null && VehicleFuelType.valueOf(fuelType) == VehicleFuelType.PETROL) {
             componentTemplates = componentTemplates.stream()
-                    .filter(t -> t.getComponentType() != ComponentType.GLOW_PLUG)
+                    .filter(t -> t.getComponentType() != ComponentType.GLOW_PLUG && t.getComponentType() != ComponentType.EGR_VALVE)
                     .toList();
-        } else if(fuelType != null && VehicleFuelType.valueOf(fuelType) == VehicleFuelType.DIESEL) {
+        }
+        else if(fuelType != null && VehicleFuelType.valueOf(fuelType) == VehicleFuelType.DIESEL) {
             componentTemplates = componentTemplates.stream()
                     .filter(t -> t.getComponentType() != ComponentType.SPARK_PLUG)
                     .toList();
         }
         if(coolingType != null && CoolingType.valueOf(coolingType) == CoolingType.AIR_COOLED) {
-            componentTemplates = componentTemplates.stream()
-                    .filter(t -> t.getComponentType() != ComponentType.COOLANT && t.getComponentType() != ComponentType.WATER_PUMP)
-                    .toList();
+            if(drivenType != null && DrivenType.valueOf(drivenType) == DrivenType.CHAIN_DRIVEN){
+                componentTemplates = componentTemplates.stream()
+                        .filter(t -> t.getComponentType() != ComponentType.COOLANT && t.getComponentType() != ComponentType.DRIVE_BELT)
+                        .toList();
+            }
+            else if(drivenType != null && DrivenType.valueOf(drivenType) == DrivenType.BELT_DRIVEN) {
+                componentTemplates = componentTemplates.stream()
+                        .filter(t -> t.getComponentType() != ComponentType.COOLANT && t.getComponentType() != ComponentType.DRIVE_CHAIN && t.getComponentType() != ComponentType.CHAIN_LUBRICATION && t.getComponentType() != ComponentType.SPROCKETS)
+                        .toList();
+            }
         }
+        else if(coolingType != null && CoolingType.valueOf(coolingType) == CoolingType.WATER_COOLED) {
+            if(drivenType != null && DrivenType.valueOf(drivenType) == DrivenType.CHAIN_DRIVEN){
+                componentTemplates = componentTemplates.stream()
+                        .filter(t -> t.getComponentType() != ComponentType.DRIVE_BELT)
+                        .toList();
+            }
+            else if(drivenType != null && DrivenType.valueOf(drivenType) == DrivenType.BELT_DRIVEN) {
+                componentTemplates = componentTemplates.stream()
+                        .filter(t -> t.getComponentType() != ComponentType.DRIVE_CHAIN && t.getComponentType() != ComponentType.CHAIN_LUBRICATION && t.getComponentType() != ComponentType.SPROCKETS)
+                        .toList();
+            }
+        }
+
         return componentTemplates;
     }
 
