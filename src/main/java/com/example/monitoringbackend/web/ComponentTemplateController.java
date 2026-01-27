@@ -1,7 +1,8 @@
 package com.example.monitoringbackend.web;
 
 import com.example.monitoringbackend.model.*;
-import com.example.monitoringbackend.service.ComponentTemplateService;
+import com.example.monitoringbackend.model.enumerations.*;
+import com.example.monitoringbackend.service.domain.ComponentTemplateService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

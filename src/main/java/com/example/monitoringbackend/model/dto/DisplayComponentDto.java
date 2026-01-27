@@ -1,6 +1,9 @@
 package com.example.monitoringbackend.model.dto;
 
 import com.example.monitoringbackend.model.*;
+import com.example.monitoringbackend.model.enumerations.ComponentType;
+import com.example.monitoringbackend.model.enumerations.Condition;
+import com.example.monitoringbackend.model.enumerations.IntervalUnit;
 
 import java.time.LocalDateTime;
 

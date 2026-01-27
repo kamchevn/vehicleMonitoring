@@ -1,5 +1,7 @@
 package com.example.monitoringbackend.model;
 
+import com.example.monitoringbackend.model.enumerations.Condition;
+import com.example.monitoringbackend.model.enumerations.ConditionCheckType;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 

@@ -6,12 +6,13 @@ import com.example.monitoringbackend.model.Component;
 import com.example.monitoringbackend.model.ComponentCheck;
 import com.example.monitoringbackend.model.ComponentCheckDetail;
 import com.example.monitoringbackend.model.dto.ComponentCheckRequestDto;
-import com.example.monitoringbackend.service.ComponentCheckService;
-import com.example.monitoringbackend.service.ComponentService;
+import com.example.monitoringbackend.service.domain.ComponentCheckService;
+import com.example.monitoringbackend.service.domain.ComponentService;
 import org.springframework.data.domain.Page;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -39,13 +40,14 @@ public class ComponentCheckController {
     }
 
     @GetMapping("/page")
-    public ResponseEntity<Page<ComponentCheck>> getProductPage(
+    public ResponseEntity<Page<ComponentCheck>> getComponentChecksPage(
+            @AuthenticationPrincipal UserDetails user,
             @RequestParam(required = false) Long vehicleId,
             @RequestParam(required = false) String checkType,
             @RequestParam(defaultValue = "1") String pageNum,
             @RequestParam(defaultValue = "20") String pageSize
     ) {
-        Page<ComponentCheck> page = this.componentCheckService.findPage(vehicleId, checkType, Integer.parseInt(pageNum)-1, Integer.parseInt(pageSize));
+        Page<ComponentCheck> page = this.componentCheckService.findPage(user,vehicleId, checkType, Integer.parseInt(pageNum)-1, Integer.parseInt(pageSize));
         return ResponseEntity.ok(page);
     }
     @PostMapping("/{id}")

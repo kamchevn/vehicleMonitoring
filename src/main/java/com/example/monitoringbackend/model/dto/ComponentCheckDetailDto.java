@@ -1,6 +1,6 @@
 package com.example.monitoringbackend.model.dto;
 
-import com.example.monitoringbackend.model.Condition;
+import com.example.monitoringbackend.model.enumerations.Condition;
 
 public class ComponentCheckDetailDto {
     private Long componentId;

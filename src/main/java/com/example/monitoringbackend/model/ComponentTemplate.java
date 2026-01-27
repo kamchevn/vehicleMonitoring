@@ -1,5 +1,8 @@
 package com.example.monitoringbackend.model;
 
+import com.example.monitoringbackend.model.enumerations.ComponentType;
+import com.example.monitoringbackend.model.enumerations.IntervalUnit;
+import com.example.monitoringbackend.model.enumerations.VehicleType;
 import jakarta.persistence.*;
 
 @Entity

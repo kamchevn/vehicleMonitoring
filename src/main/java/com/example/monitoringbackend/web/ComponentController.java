@@ -2,11 +2,12 @@ package com.example.monitoringbackend.web;
 
 import com.example.monitoringbackend.exceptions.VehicleNotFoundException;
 import com.example.monitoringbackend.model.Component;
-import com.example.monitoringbackend.model.Condition;
+import com.example.monitoringbackend.model.enumerations.Condition;
 import com.example.monitoringbackend.model.Vehicle;
 import com.example.monitoringbackend.model.dto.DisplayComponentDto;
-import com.example.monitoringbackend.service.ComponentService;
-import com.example.monitoringbackend.service.VehicleService;
+import com.example.monitoringbackend.service.application.ComponentApplicationService;
+import com.example.monitoringbackend.service.domain.ComponentService;
+import com.example.monitoringbackend.service.domain.VehicleService;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,16 +19,16 @@ import java.util.List;
 @CrossOrigin("*")
 @RequestMapping("/api/component")
 public class ComponentController {
-    private final ComponentService componentService;
+    private final ComponentApplicationService componentService;
     private final VehicleService vehicleService;
 
-    public ComponentController(ComponentService componentService, VehicleService vehicleService) {
+    public ComponentController(ComponentApplicationService componentService, VehicleService vehicleService) {
         this.componentService = componentService;
         this.vehicleService = vehicleService;
     }
 
     @GetMapping
-    private List<Component> getComponents(){
+    private List<DisplayComponentDto> getComponents(){
         return componentService.findAll();
     }
 
@@ -45,9 +46,8 @@ public class ComponentController {
         if (condition != null && !condition.isBlank()) {
             conditions = List.of(condition.split(","));
         }
-        Page<Component> page = this.componentService.findPage(id, measuringUnit, conditions, Integer.parseInt(pageNum)-1, Integer.parseInt(pageSize));
-        Page<DisplayComponentDto> dtoPage = page.map(DisplayComponentDto::from);
-        return ResponseEntity.ok(dtoPage);
+        Page<DisplayComponentDto> page = this.componentService.findPage(id, measuringUnit, conditions, Integer.parseInt(pageNum)-1, Integer.parseInt(pageSize));
+        return ResponseEntity.ok(page);
     }
 
     @GetMapping("/{id}")
@@ -60,7 +60,7 @@ public class ComponentController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<Component> createComponent(
+    public ResponseEntity<DisplayComponentDto> createComponent(
             @RequestParam Long vehicleId,
             @RequestParam Long componentTemplateId,
             @RequestParam String condition,
@@ -94,15 +94,15 @@ public class ComponentController {
     @GetMapping("/findByVehicle/{vehicleId}")
     public List<DisplayComponentDto> findAllByVehicle(@PathVariable Long vehicleId) {
         Vehicle vehicle = vehicleService.findById(vehicleId);
-        List<Component> components = componentService.findAllByVehicle(vehicle);
-        return components.stream().map(DisplayComponentDto::from).toList();
+        List<DisplayComponentDto> components = componentService.findAllByVehicle(vehicle);
+        return components;
     }
 
     @GetMapping("/findByVehicleAndCondition/{vehicleId}/{condition}")
     public List<DisplayComponentDto> findAllByVehicleAndCondition(@PathVariable Long vehicleId, @PathVariable String condition) {
         Condition con = Condition.valueOf(condition);
         Vehicle vehicle = vehicleService.findById(vehicleId);
-        List<Component> components = componentService.findAllByVehicleAndCondition(vehicle,con);
-        return components.stream().map(DisplayComponentDto::from).toList();
+        List<DisplayComponentDto> components = componentService.findAllByVehicleAndCondition(vehicle,con);
+        return components;
     }
 }

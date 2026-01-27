@@ -1,8 +1,8 @@
 package com.example.monitoringbackend.repository;
 
 import com.example.monitoringbackend.model.ComponentTemplate;
-import com.example.monitoringbackend.model.ComponentType;
-import com.example.monitoringbackend.model.VehicleType;
+import com.example.monitoringbackend.model.enumerations.ComponentType;
+import com.example.monitoringbackend.model.enumerations.VehicleType;
 import com.example.monitoringbackend.repository.jpa.JpaSpecificationRepository;
 import org.springframework.stereotype.Repository;
 

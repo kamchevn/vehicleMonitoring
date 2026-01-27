@@ -1,5 +1,6 @@
 package com.example.monitoringbackend.model;
 
+import com.example.monitoringbackend.model.enumerations.Condition;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;

@@ -1,5 +1,6 @@
 package com.example.monitoringbackend.model;
 
+import com.example.monitoringbackend.model.enumerations.IntervalUnit;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;

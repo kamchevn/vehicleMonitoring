@@ -1,5 +1,8 @@
 package com.example.monitoringbackend.model;
 
+import com.example.monitoringbackend.model.dto.InsertWindowStatusDto;
+import com.example.monitoringbackend.model.enumerations.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 
@@ -35,10 +38,18 @@ public class Vehicle {
     private LocalDateTime lastInsertKilometers = null;
     private LocalDateTime lastInsertFuel = null;
 
+    @Transient
+    private InsertWindowStatusDto insertWindowStatus;
+
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "username", nullable = false)
+    private User user;
+
     public Vehicle() {
     }
 
-    public Vehicle(String name, Integer year, Integer totalKilometers, VehicleType type, VehicleFuelType fuelType, CoolingType coolingType, DrivenType drivenType, Condition condition, IntervalInsertPeriod insertPeriodType) {
+    public Vehicle(String name, Integer year, Integer totalKilometers, VehicleType type, VehicleFuelType fuelType, CoolingType coolingType, DrivenType drivenType, Condition condition, IntervalInsertPeriod insertPeriodType, User user) {
         this.name = name;
         this.year = year;
         this.totalKilometers = totalKilometers;
@@ -48,6 +59,7 @@ public class Vehicle {
         this.drivenType = drivenType;
         this.condition = condition;
         this.insertPeriodType = insertPeriodType;
+        this.user = user;
     }
 
     public Long getId() {
@@ -156,5 +168,21 @@ public class Vehicle {
 
     public void setLastInsertFuel(LocalDateTime lastInsertFuel) {
         this.lastInsertFuel = lastInsertFuel;
+    }
+
+    public InsertWindowStatusDto getInsertWindowStatus() {
+        return insertWindowStatus;
+    }
+
+    public void setInsertWindowStatus(InsertWindowStatusDto insertWindowStatus) {
+        this.insertWindowStatus = insertWindowStatus;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 }
