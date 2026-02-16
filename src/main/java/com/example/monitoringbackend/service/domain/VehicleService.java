@@ -12,7 +12,7 @@ import java.util.Optional;
 public interface VehicleService {
     Vehicle findById(Long id);
     Page<Vehicle> findPage(UserDetails user, String name, String type, Integer pageNum, Integer pageSize);
-    List<Vehicle> findAll();
+    List<Vehicle> findAll(UserDetails user);
     Vehicle createNewVehicle(String name, int year, int totalKilometers, String type, String fuelType, String coolingType, String drivenType, String condition, String insertPeriodType, UserDetails user);
     Vehicle editVehicle(Long id, String name, int year, int totalKilometers, String type, String fuelType, String coolingType, String drivenType, String condition, String insertPeriodType, UserDetails user);
     Vehicle deleteVehicle(Long id);

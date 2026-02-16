@@ -7,5 +7,6 @@ public record InsertWindowStatusDto(
         boolean hasInsertedKilometersThisWindow,
         boolean hasInsertedFuelThisWindow,
         boolean hasCompletedAllInserts,
-        boolean isInsertUpcoming
+        boolean isInsertUpcoming,
+        boolean isPenaltyActive
 ) {}

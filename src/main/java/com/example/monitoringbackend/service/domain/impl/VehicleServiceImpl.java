@@ -5,17 +5,15 @@ import com.example.monitoringbackend.exceptions.IntervalDoesNotMatchException;
 import com.example.monitoringbackend.exceptions.VehicleNotFoundException;
 import com.example.monitoringbackend.model.*;
 import com.example.monitoringbackend.model.enumerations.*;
-import com.example.monitoringbackend.repository.ComponentCheckRepository;
+import com.example.monitoringbackend.repository.ComponentServiceRepository;
 import com.example.monitoringbackend.repository.IntervalInsertRepository;
 import com.example.monitoringbackend.repository.VehicleRepository;
-import com.example.monitoringbackend.service.domain.ComponentService;
 import com.example.monitoringbackend.service.domain.ComponentTemplateService;
 import com.example.monitoringbackend.service.domain.UserService;
 import com.example.monitoringbackend.service.domain.VehicleService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -31,18 +29,18 @@ import static com.example.monitoringbackend.service.specifications.FieldFilterSp
 @Service
 public class VehicleServiceImpl implements VehicleService {
     private final VehicleRepository vehicleRepository;
-    private final ComponentService componentService;
+    private final com.example.monitoringbackend.service.domain.ComponentService componentService;
     private final ComponentTemplateService componentTemplateService;
-    private final ComponentCheckRepository componentCheckRepository;
+    private final ComponentServiceRepository componentServiceRepository;
     private final IntervalInsertRepository intervalInsertRepository;
     private final InsertWindowStatusService insertWindowStatusService;
     private final UserService userService;
 
-    public VehicleServiceImpl(VehicleRepository vehicleRepository, ComponentService componentService, ComponentTemplateService componentTemplateService, ComponentCheckRepository componentCheckRepository, IntervalInsertRepository intervalInsertRepository, InsertWindowStatusService insertWindowStatusService, UserService userService) {
+    public VehicleServiceImpl(VehicleRepository vehicleRepository, com.example.monitoringbackend.service.domain.ComponentService componentService, ComponentTemplateService componentTemplateService, ComponentServiceRepository componentServiceRepository, IntervalInsertRepository intervalInsertRepository, InsertWindowStatusService insertWindowStatusService, UserService userService) {
         this.vehicleRepository = vehicleRepository;
         this.componentService = componentService;
         this.componentTemplateService = componentTemplateService;
-        this.componentCheckRepository = componentCheckRepository;
+        this.componentServiceRepository = componentServiceRepository;
         this.intervalInsertRepository = intervalInsertRepository;
         this.insertWindowStatusService = insertWindowStatusService;
         this.userService = userService;
@@ -84,8 +82,17 @@ public class VehicleServiceImpl implements VehicleService {
     }
 
     @Override
-    public List<Vehicle> findAll() {
-        List<Vehicle> vehicles = vehicleRepository.findAll();
+    public List<Vehicle> findAll(UserDetails user) {
+        List<Vehicle> vehicles;
+        boolean isAdmin = user.getAuthorities()
+                .stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        if(isAdmin){
+            vehicles = vehicleRepository.findAll();
+        }
+        else{
+            vehicles = vehicleRepository.findAllByUserUsername(user.getUsername());
+        }
         vehicles.forEach(vehicle -> vehicle.setInsertWindowStatus(insertWindowStatusService.calculate(vehicle, Clock.systemDefaultZone())));
         return vehicles;
     }
@@ -217,10 +224,10 @@ public class VehicleServiceImpl implements VehicleService {
     @Override
     public Vehicle deleteVehicle(Long id) {
         Vehicle vehicle = this.findById(id);
-        List<ComponentCheck> checksForVehicle = componentCheckRepository.findAllByVehicle(vehicle);
-        for(ComponentCheck check : checksForVehicle){
+        List<ComponentService> checksForVehicle = componentServiceRepository.findAllByVehicle(vehicle);
+        for(ComponentService check : checksForVehicle){
             check.getComponentDetails().clear();
-            componentCheckRepository.delete(check);
+            componentServiceRepository.delete(check);
         }
         List<Component> components = componentService.findAllByVehicle(vehicle);
         for(Component component : components){
@@ -266,7 +273,7 @@ public class VehicleServiceImpl implements VehicleService {
         }
 
         vehicleRepository.save(vehicle);
-        intervalInsertRepository.save(new IntervalInsert(insertTime,vehicle,unit,amount));
+        intervalInsertRepository.save(new IntervalInsert(insertTime,vehicle,unit,amount,late));
         changeVehicleCondition(vehicleId);
     }
 

@@ -27,7 +27,7 @@ public class Component {
     private LocalDateTime lastChecked = null;
     @JsonIgnore
     @OneToMany(mappedBy = "component", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ComponentCheckDetail> componentCheckDetails = new ArrayList<>();
+    private List<ComponentServiceDetail> componentServiceDetails = new ArrayList<>();
 
     private boolean warningFlag = false;
     private boolean needsCheck = false;
@@ -108,11 +108,11 @@ public class Component {
         this.needsCheck = needsCheck;
     }
 
-    public List<ComponentCheckDetail> getComponentCheckDetails() {
-        return componentCheckDetails;
+    public List<ComponentServiceDetail> getComponentCheckDetails() {
+        return componentServiceDetails;
     }
 
-    public void setComponentCheckDetails(List<ComponentCheckDetail> componentCheckDetails) {
-        this.componentCheckDetails = componentCheckDetails;
+    public void setComponentCheckDetails(List<ComponentServiceDetail> componentServiceDetails) {
+        this.componentServiceDetails = componentServiceDetails;
     }
 }

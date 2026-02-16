@@ -46,6 +46,8 @@ public class Vehicle {
     @JoinColumn(name = "username", nullable = false)
     private User user;
 
+    private boolean penaltyActive = false;
+
     public Vehicle() {
     }
 
@@ -184,5 +186,13 @@ public class Vehicle {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public boolean isPenaltyActive() {
+        return penaltyActive;
+    }
+
+    public void setPenaltyActive(boolean penaltyActive) {
+        this.penaltyActive = penaltyActive;
     }
 }

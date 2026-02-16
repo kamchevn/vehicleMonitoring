@@ -29,8 +29,8 @@ public class VehicleController {
     }
 
     @GetMapping
-    public List<DisplayVehicleDto> getVehicles(){
-        return vehicleService.findAll();
+    public List<DisplayVehicleDto> getVehicles(@AuthenticationPrincipal UserDetails user){
+        return vehicleService.findAll(user);
     }
 
     @GetMapping("/page")

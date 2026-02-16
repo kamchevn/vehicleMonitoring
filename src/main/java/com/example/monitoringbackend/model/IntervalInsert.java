@@ -16,15 +16,17 @@ public class IntervalInsert {
     @Enumerated(EnumType.STRING)
     private IntervalUnit unit;
     private Integer amount;
+    private boolean late = false;
 
     public IntervalInsert() {
     }
 
-    public IntervalInsert(LocalDateTime timeOfEntry, Vehicle vehicle, IntervalUnit unit, Integer amount) {
+    public IntervalInsert(LocalDateTime timeOfEntry, Vehicle vehicle, IntervalUnit unit, Integer amount, boolean late) {
         this.timeOfEntry = timeOfEntry;
         this.vehicle = vehicle;
         this.unit = unit;
         this.amount = amount;
+        this.late = late;
     }
 
     public Long getId() {
@@ -61,5 +63,13 @@ public class IntervalInsert {
 
     public void setAmount(Integer amount) {
         this.amount = amount;
+    }
+
+    public boolean isLate() {
+        return late;
+    }
+
+    public void setLate(boolean late) {
+        this.late = late;
     }
 }

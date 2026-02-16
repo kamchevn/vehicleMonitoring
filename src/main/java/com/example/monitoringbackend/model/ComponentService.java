@@ -1,7 +1,7 @@
 package com.example.monitoringbackend.model;
 
 import com.example.monitoringbackend.model.enumerations.Condition;
-import com.example.monitoringbackend.model.enumerations.ConditionCheckType;
+import com.example.monitoringbackend.model.enumerations.ServiceType;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 
@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-public class ComponentCheck {
+public class ComponentService {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -22,21 +22,21 @@ public class ComponentCheck {
     private Vehicle vehicle;
     private Condition previousCondition;
     private Condition currentCondition;
-    private ConditionCheckType checkType;
+    private ServiceType serviceType;
 
-    @OneToMany(mappedBy = "componentCheck", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ComponentCheckDetail> componentDetails = new ArrayList<>();
+    @OneToMany(mappedBy = "componentService", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ComponentServiceDetail> componentDetails = new ArrayList<>();
 
-    public ComponentCheck(){
+    public ComponentService(){
     }
 
-    public ComponentCheck(String note, LocalDateTime timeOfEntry, Vehicle vehicle, Condition previousCondition, Condition currentCondition, ConditionCheckType checkType) {
+    public ComponentService(String note, LocalDateTime timeOfEntry, Vehicle vehicle, Condition previousCondition, Condition currentCondition, ServiceType serviceType) {
         this.note = note;
         this.timeOfEntry = timeOfEntry;
         this.vehicle = vehicle;
         this.previousCondition = previousCondition;
         this.currentCondition = currentCondition;
-        this.checkType = checkType;
+        this.serviceType = serviceType;
     }
 
     public Long getId() {
@@ -83,22 +83,22 @@ public class ComponentCheck {
         this.currentCondition = currentCondition;
     }
 
-    public ConditionCheckType getCheckType() {
-        return checkType;
+    public ServiceType getServiceType() {
+        return serviceType;
     }
 
-    public void setCheckType(ConditionCheckType checkType) {
-        this.checkType = checkType;
+    public void setServiceType(ServiceType serviceType) {
+        this.serviceType = serviceType;
     }
 
-    public List<ComponentCheckDetail> getComponentDetails() { return componentDetails; }
-    public void setComponentDetails(List<ComponentCheckDetail> componentDetails) { this.componentDetails = componentDetails; }
+    public List<ComponentServiceDetail> getComponentDetails() { return componentDetails; }
+    public void setComponentDetails(List<ComponentServiceDetail> componentDetails) { this.componentDetails = componentDetails; }
 
-    public void addComponentDetail(ComponentCheckDetail detail) {
+    public void addComponentDetail(ComponentServiceDetail detail) {
         detail.setComponentCheck(this);
         this.componentDetails.add(detail);
     }
-    public void removeComponentDetail(ComponentCheckDetail detail) {
+    public void removeComponentDetail(ComponentServiceDetail detail) {
         detail.setComponentCheck(null);
         this.componentDetails.remove(detail);
     }

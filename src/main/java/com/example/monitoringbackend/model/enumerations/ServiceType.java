@@ -1,5 +1,5 @@
 package com.example.monitoringbackend.model.enumerations;
 
-public enum ConditionCheckType {
+public enum ServiceType {
     REGULAR,URGENT
 }

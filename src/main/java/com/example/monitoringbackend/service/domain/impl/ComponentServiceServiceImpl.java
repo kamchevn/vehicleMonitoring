@@ -1,13 +1,12 @@
 package com.example.monitoringbackend.service.domain.impl;
 
 
-import com.example.monitoringbackend.exceptions.CheckNotFoundException;
+import com.example.monitoringbackend.exceptions.ServiceNotFoundException;
 import com.example.monitoringbackend.model.*;
 import com.example.monitoringbackend.model.enumerations.Condition;
-import com.example.monitoringbackend.model.enumerations.ConditionCheckType;
-import com.example.monitoringbackend.repository.ComponentCheckRepository;
-import com.example.monitoringbackend.service.domain.ComponentService;
-import com.example.monitoringbackend.service.domain.ComponentCheckService;
+import com.example.monitoringbackend.model.enumerations.ServiceType;
+import com.example.monitoringbackend.repository.ComponentServiceRepository;
+import com.example.monitoringbackend.service.domain.ComponentServiceService;
 import com.example.monitoringbackend.service.domain.VehicleService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -22,62 +21,62 @@ import static com.example.monitoringbackend.service.specifications.FieldFilterSp
 import static com.example.monitoringbackend.service.specifications.FieldFilterSpecification.filterEqualsV;
 
 @Service
-public class ComponentCheckServiceImpl implements ComponentCheckService {
-    private final ComponentCheckRepository componentCheckRepository;
+public class ComponentServiceServiceImpl implements ComponentServiceService {
+    private final ComponentServiceRepository componentServiceRepository;
     private final VehicleService vehicleService;
-    private final ComponentService componentService;
+    private final com.example.monitoringbackend.service.domain.ComponentService componentService;
 
-    public ComponentCheckServiceImpl(ComponentCheckRepository componentCheckRepository, VehicleService vehicleService, ComponentService componentService) {
-        this.componentCheckRepository = componentCheckRepository;
+    public ComponentServiceServiceImpl(ComponentServiceRepository componentServiceRepository, VehicleService vehicleService, com.example.monitoringbackend.service.domain.ComponentService componentService) {
+        this.componentServiceRepository = componentServiceRepository;
         this.vehicleService = vehicleService;
         this.componentService = componentService;
     }
 
     @Override
-    public ComponentCheck findById(Long checkId) {
-        return componentCheckRepository.findById(checkId).orElseThrow(() -> new CheckNotFoundException(checkId));
+    public ComponentService findById(Long checkId) {
+        return componentServiceRepository.findById(checkId).orElseThrow(() -> new ServiceNotFoundException(checkId));
     }
 
     @Override
-    public Page<ComponentCheck> findPage(UserDetails user, Long vehicleId, String checkType, Integer pageNum, Integer pageSize) {
-        Specification<ComponentCheck> spec = Specification.allOf();
+    public Page<ComponentService> findPage(UserDetails user, Long vehicleId, String serviceType, Integer pageNum, Integer pageSize) {
+        Specification<ComponentService> spec = Specification.allOf();
 
         boolean isAdmin = user.getAuthorities()
                 .stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
 
         if (!isAdmin) {
-            spec = spec.and(filterEquals(ComponentCheck.class, "vehicle.user.username", user.getUsername()));
+            spec = spec.and(filterEquals(ComponentService.class, "vehicle.user.username", user.getUsername()));
         }
 
         if (vehicleId != null) {
-            spec = spec.and(filterEquals(ComponentCheck.class, "vehicle.id", vehicleId));
+            spec = spec.and(filterEquals(ComponentService.class, "vehicle.id", vehicleId));
         }
 
-        if (checkType != null && !checkType.isEmpty()) {
-            ConditionCheckType typeEnum = ConditionCheckType.valueOf(checkType);
-            spec = spec.and(filterEqualsV(ComponentCheck.class, "checkType", typeEnum));
+        if (serviceType != null && !serviceType.isEmpty()) {
+            ServiceType typeEnum = ServiceType.valueOf(serviceType);
+            spec = spec.and(filterEqualsV(ComponentService.class, "serviceType", typeEnum));
         }
 
-        return this.componentCheckRepository.findAll(
+        return this.componentServiceRepository.findAll(
                 spec,
                 PageRequest.of(pageNum, pageSize)
         );
     }
 
     @Override
-    public void checkConditionForVehicle(Long vehicleId, String checkType, String note, LocalDateTime checkTime, List<ComponentCheckDetail> componentDetails) {
+    public void checkConditionForVehicle(Long vehicleId, String serviceType, String note, LocalDateTime checkTime, List<ComponentServiceDetail> componentDetails) {
         Vehicle vehicle = vehicleService.findById(vehicleId);
         Condition previousVehicleCondition = vehicle.getCondition();
 
-        ComponentCheck check = new ComponentCheck();
+        ComponentService check = new ComponentService();
         check.setVehicle(vehicle);
-        check.setCheckType(ConditionCheckType.valueOf(checkType));
+        check.setServiceType(ServiceType.valueOf(serviceType));
         check.setPreviousCondition(previousVehicleCondition);
         check.setTimeOfEntry(checkTime);
         check.setNote((note == null || note.isBlank()) ? null : note);
 
-        for (ComponentCheckDetail detail : componentDetails) {
+        for (ComponentServiceDetail detail : componentDetails) {
             Component component = componentService.findById(detail.getComponent().getId());
             if (detail.getPreviousCondition() == null) {
                 detail.setPreviousCondition(component.getCondition());
@@ -114,6 +113,6 @@ public class ComponentCheckServiceImpl implements ComponentCheckService {
         vehicleService.changeVehicleCondition(vehicleId);
         Vehicle updatedVehicle = vehicleService.findById(vehicleId);
         check.setCurrentCondition(updatedVehicle.getCondition());
-        componentCheckRepository.save(check);
+        componentServiceRepository.save(check);
     }
 }

@@ -1,9 +1,6 @@
 package com.example.monitoringbackend.service.domain.impl;
 
-import com.example.monitoringbackend.exceptions.InvalidUserCredentialsException;
-import com.example.monitoringbackend.exceptions.PasswordsDoNotMatchException;
-import com.example.monitoringbackend.exceptions.UserNotFoundException;
-import com.example.monitoringbackend.exceptions.UsernameAlreadyExistsException;
+import com.example.monitoringbackend.exceptions.*;
 import com.example.monitoringbackend.model.User;
 import com.example.monitoringbackend.model.enumerations.Role;
 import com.example.monitoringbackend.repository.UserRepository;
@@ -30,6 +27,13 @@ public class UserServiceImpl implements UserService {
     public User registerUser(String username, String password, String repeatPassword, String name, String surname, Role role) {
         if (!password.equals(repeatPassword)) {
             throw new PasswordsDoNotMatchException();
+        }
+
+        if (!password.matches(".*[A-Z].*") ||
+                !password.matches(".*\\d.*") ||
+                !password.matches(".*[^A-Za-z0-9].*")) {
+
+            throw new InvalidPasswordFormatException();
         }
 
         if (this.userRepository.findByUsername(username).isPresent()) {

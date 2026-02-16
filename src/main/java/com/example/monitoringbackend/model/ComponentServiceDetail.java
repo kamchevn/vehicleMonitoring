@@ -5,14 +5,14 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 @Entity
-public class ComponentCheckDetail {
+public class ComponentServiceDetail {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @JsonIgnore
     @ManyToOne
-    @JoinColumn(name = "component_check_id")
-    private ComponentCheck componentCheck;
+    @JoinColumn(name = "component_service_id")
+    private ComponentService componentService;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "component_id")
@@ -21,10 +21,10 @@ public class ComponentCheckDetail {
     private Condition previousCondition;
     private Condition currentCondition;
 
-    public ComponentCheckDetail() {}
+    public ComponentServiceDetail() {}
 
-    public ComponentCheckDetail(ComponentCheck componentCheck, Component component, Condition previousCondition, Condition currentCondition) {
-        this.componentCheck = componentCheck;
+    public ComponentServiceDetail(ComponentService componentService, Component component, Condition previousCondition, Condition currentCondition) {
+        this.componentService = componentService;
         this.component = component;
         this.previousCondition = previousCondition;
         this.currentCondition = currentCondition;
@@ -34,12 +34,12 @@ public class ComponentCheckDetail {
         return id;
     }
 
-    public ComponentCheck getComponentCheck() {
-        return componentCheck;
+    public ComponentService getComponentCheck() {
+        return componentService;
     }
 
-    public void setComponentCheck(ComponentCheck componentCheck) {
-        this.componentCheck = componentCheck;
+    public void setComponentCheck(ComponentService componentService) {
+        this.componentService = componentService;
     }
 
     public Component getComponent() {

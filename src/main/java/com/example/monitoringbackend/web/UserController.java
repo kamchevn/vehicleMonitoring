@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -39,14 +40,17 @@ public class UserController {
             )}
     )
     @PostMapping("/register")
-    public ResponseEntity<DisplayUserDto> register(@RequestBody CreateUserDto createUserDto) {
-        try {
-            return userApplicationService.register(createUserDto)
-                    .map(ResponseEntity::ok)
-                    .orElse(ResponseEntity.notFound().build());
-        } catch (PasswordsDoNotMatchException exception) {
-            return ResponseEntity.badRequest().build();
-        }
+    public ResponseEntity<DisplayUserDto> register(@Valid @RequestBody CreateUserDto createUserDto) {
+//        try {
+//            return userApplicationService.register(createUserDto)
+//                    .map(ResponseEntity::ok)
+//                    .orElse(ResponseEntity.notFound().build());
+//        } catch (PasswordsDoNotMatchException exception) {
+//            return ResponseEntity.badRequest().build();
+//        }
+        return userApplicationService.register(createUserDto)
+                .map(ResponseEntity::ok)
+                .orElseThrow();
     }
 
     @Operation(summary = "User login", description = "Authenticates a user and generates a JWT")
@@ -57,7 +61,7 @@ public class UserController {
             ), @ApiResponse(responseCode = "404", description = "Invalid username or password")}
     )
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDto> login(@RequestBody LoginUserDto loginUserDto) {
+    public ResponseEntity<LoginResponseDto> login(@Valid @RequestBody LoginUserDto loginUserDto) {
         return userApplicationService.login(loginUserDto)
                 .map(ResponseEntity::ok)
                 .orElseThrow(InvalidUserCredentialsException::new);

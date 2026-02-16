@@ -3,10 +3,11 @@ package com.example.monitoringbackend.web;
 import com.example.monitoringbackend.exceptions.IntervalDoesNotMatchException;
 import com.example.monitoringbackend.exceptions.VehicleNotFoundException;
 import com.example.monitoringbackend.model.Component;
-import com.example.monitoringbackend.model.ComponentCheck;
-import com.example.monitoringbackend.model.ComponentCheckDetail;
-import com.example.monitoringbackend.model.dto.ComponentCheckRequestDto;
-import com.example.monitoringbackend.service.domain.ComponentCheckService;
+import com.example.monitoringbackend.model.ComponentServiceDetail;
+import com.example.monitoringbackend.model.dto.ComponentServiceRequestDto;
+import com.example.monitoringbackend.model.dto.DisplayServiceDto;
+import com.example.monitoringbackend.service.application.ServiceApplicationService;
+import com.example.monitoringbackend.service.domain.ComponentServiceService;
 import com.example.monitoringbackend.service.domain.ComponentService;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -19,54 +20,55 @@ import java.util.List;
 
 @RestController
 @CrossOrigin("*")
-@RequestMapping("/api/conditionCheck")
-public class ComponentCheckController {
-    private final ComponentCheckService componentCheckService;
-
+@RequestMapping("/api/service")
+public class ComponentServiceController {
+    private final ComponentServiceService componentServiceService;
+    private final ServiceApplicationService serviceApplicationService;
     private final ComponentService componentService;
 
-    public ComponentCheckController(ComponentCheckService componentCheckService, ComponentService componentService) {
-        this.componentCheckService = componentCheckService;
+    public ComponentServiceController(ComponentServiceService componentServiceService, ServiceApplicationService serviceApplicationService, ComponentService componentService) {
+        this.componentServiceService = componentServiceService;
+        this.serviceApplicationService = serviceApplicationService;
         this.componentService = componentService;
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getCheckById (@PathVariable Long id){
         try {
-            return ResponseEntity.ok(componentCheckService.findById(id));
+            return ResponseEntity.ok(serviceApplicationService.findById(id));
         } catch (VehicleNotFoundException ex) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
         }
     }
 
     @GetMapping("/page")
-    public ResponseEntity<Page<ComponentCheck>> getComponentChecksPage(
+    public ResponseEntity<Page<DisplayServiceDto>> getComponentServicesPage(
             @AuthenticationPrincipal UserDetails user,
             @RequestParam(required = false) Long vehicleId,
-            @RequestParam(required = false) String checkType,
+            @RequestParam(required = false) String serviceType,
             @RequestParam(defaultValue = "1") String pageNum,
             @RequestParam(defaultValue = "20") String pageSize
     ) {
-        Page<ComponentCheck> page = this.componentCheckService.findPage(user,vehicleId, checkType, Integer.parseInt(pageNum)-1, Integer.parseInt(pageSize));
+        Page<DisplayServiceDto> page = this.serviceApplicationService.findPage(user,vehicleId, serviceType, Integer.parseInt(pageNum)-1, Integer.parseInt(pageSize));
         return ResponseEntity.ok(page);
     }
     @PostMapping("/{id}")
-    public ResponseEntity<String> checkConditionForVehicle(
+    public ResponseEntity<String> serviceVehicle(
             @PathVariable Long id,
-            @RequestBody ComponentCheckRequestDto request) {
+            @RequestBody ComponentServiceRequestDto request) {
 
         try {
-            List<ComponentCheckDetail> details = request.getComponentDetails().stream().map(dto -> {
+            List<ComponentServiceDetail> details = request.getComponentDetails().stream().map(dto -> {
                 Component component = componentService.findById(dto.getComponentId());
-                ComponentCheckDetail detail = new ComponentCheckDetail();
+                ComponentServiceDetail detail = new ComponentServiceDetail();
                 detail.setComponent(component);
                 detail.setCurrentCondition(dto.getCurrentCondition());
                 return detail;
             }).toList();
 
-            componentCheckService.checkConditionForVehicle(
+            componentServiceService.checkConditionForVehicle(
                     id,
-                    request.getCheckType(),
+                    request.getServiceType(),
                     request.getNote(),
                     request.getCheckTime(),
                     details

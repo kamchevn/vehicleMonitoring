@@ -1,105 +1,242 @@
 package com.example.monitoringbackend.service.domain.impl;
 
+import com.example.monitoringbackend.model.IntervalInsert;
 import com.example.monitoringbackend.model.enumerations.Condition;
 import com.example.monitoringbackend.model.enumerations.IntervalInsertPeriod;
 import com.example.monitoringbackend.model.Vehicle;
 import com.example.monitoringbackend.model.dto.InsertWindowStatusDto;
+import com.example.monitoringbackend.model.enumerations.IntervalUnit;
+import com.example.monitoringbackend.repository.IntervalInsertRepository;
+import com.example.monitoringbackend.repository.VehicleRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class InsertWindowStatusService {
 
-    // Weekly window: last 2 days of the week (Mon=1..Sun=7)
-    private boolean isInLastTwoDaysOfWeek(LocalDateTime time) {
-        LocalDate today = LocalDate.now();
-        int dow = today.getDayOfWeek().getValue(); // 1=Mon .. 7=Sun
+    private final IntervalInsertRepository intervalInsertRepository;
+    private final VehicleRepository vehicleRepository;
 
-        LocalDate start = today.minusDays(dow - 6); // last 2 days = Sat+Sun
-        LocalDate end = today;
+    public InsertWindowStatusService(IntervalInsertRepository intervalInsertRepository, VehicleRepository vehicleRepository) {
+        this.intervalInsertRepository = intervalInsertRepository;
+        this.vehicleRepository = vehicleRepository;
+    }
+    private LocalDate getWeeklyWindowStart(LocalDate date) {
+        int dow = date.getDayOfWeek().getValue(); // 1=Mon ... 7=Sun
+        int daysFromSaturday = (dow + 1) % 7;
+        return date.minusDays(daysFromSaturday);
+    }
+    private LocalDate getMonthlyWindowStart(LocalDate date) {
+        LocalDate lastDay = date.withDayOfMonth(date.lengthOfMonth());
 
-        LocalDate check = time.toLocalDate();
-        return !check.isBefore(start) && !check.isAfter(end);
+        // Normal window: last 4 days of current month
+        if (!date.isBefore(lastDay.minusDays(3))) {
+            return lastDay.minusDays(3);
+        }
+
+        // Late window: first 4 days of month → window started last month
+        if (date.getDayOfMonth() <= 4) {
+            LocalDate prevMonthLastDay =
+                    date.minusMonths(1).withDayOfMonth(date.minusMonths(1).lengthOfMonth());
+            return prevMonthLastDay.minusDays(3);
+        }
+
+        // Outside any monthly window
+        return null;
+    }
+    private boolean isWeeklyNormalWindow(LocalDate date) {
+        int dow = date.getDayOfWeek().getValue();
+        return dow == 6 || dow == 7; // Saturday, Sunday
     }
 
-    // Monthly window: normal (last 4 days of current month) + late (first 4 days of next month)
-    private boolean isInMonthlyWindow(LocalDateTime lastInsert, LocalDateTime now) {
-        LocalDate today = now.toLocalDate();
-        LocalDate check = lastInsert.toLocalDate();
-
-        // Last 4 days of current month
-        LocalDate lastDayOfMonth = today.withDayOfMonth(today.lengthOfMonth());
-        LocalDate startNormal = lastDayOfMonth.minusDays(3);
-
-        // First 4 days of next month
-        LocalDate firstDayNextMonth = lastDayOfMonth.plusDays(1);
-        LocalDate endLate = firstDayNextMonth.plusDays(3);
-
-        return (!check.isBefore(startNormal) && !check.isAfter(lastDayOfMonth)) // normal
-                || (!check.isBefore(firstDayNextMonth) && !check.isAfter(endLate)); // late
+    private boolean isWeeklyLateWindow(LocalDate date) {
+        int dow = date.getDayOfWeek().getValue();
+        return dow == 1 || dow == 2; // Monday, Tuesday
     }
 
-    private boolean isInCurrentMonthWindow(LocalDateTime now) {
-        LocalDate today = now.toLocalDate();
+    private boolean isMonthlyNormalWindow(LocalDate date) {
+        LocalDate lastDay = date.withDayOfMonth(date.lengthOfMonth());
+        LocalDate startNormal = lastDay.minusDays(3);
 
-        LocalDate lastDayOfMonth = today.withDayOfMonth(today.lengthOfMonth());
-        LocalDate startNormal = lastDayOfMonth.minusDays(3);
+        LocalDate firstNextMonth = lastDay.plusDays(1);
+        LocalDate endLate = firstNextMonth.plusDays(3);
 
-        LocalDate firstDayNextMonth = lastDayOfMonth.plusDays(1);
-        LocalDate endLate = firstDayNextMonth.plusDays(3);
-
-        // Today is either in normal or late window
-        return (!today.isBefore(startNormal) && !today.isAfter(lastDayOfMonth))
-                || (!today.isBefore(firstDayNextMonth) && !today.isAfter(endLate));
+        return (!date.isBefore(startNormal) && !date.isAfter(lastDay))
+                || (!date.isBefore(firstNextMonth) && !date.isAfter(endLate));
     }
 
-    // Checks if lastInsert happened in current window
-    private boolean wasInsertedThisWindow(LocalDateTime lastInsert, IntervalInsertPeriod period, Clock clock) {
+    private boolean isMonthlyLateWindow(LocalDate date) {
+        return date.getDayOfMonth() <= 4;
+    }
+
+    private boolean wasInsertedInCurrentWeeklyWindow(LocalDateTime lastInsert, Clock clock) {
         if (lastInsert == null) return false;
 
-        LocalDateTime now = LocalDateTime.now(clock);
+        LocalDate today = LocalDate.now(clock);
 
-        return switch (period) {
-            case WEEKLY -> isInLastTwoDaysOfWeek(lastInsert);
-            case MONTHLY -> isInMonthlyWindow(lastInsert, now);
-        };
+        LocalDate currentWindowStart = getWeeklyWindowStart(today);
+        LocalDate insertWindowStart = getWeeklyWindowStart(lastInsert.toLocalDate());
+
+        return currentWindowStart.equals(insertWindowStart);
+    }
+
+    private boolean wasInsertedInCurrentMonthlyWindow(LocalDateTime lastInsert, Clock clock) {
+        if (lastInsert == null) return false;
+
+        LocalDate today = LocalDate.now(clock);
+
+        LocalDate currentWindowStart = getMonthlyWindowStart(today);
+        LocalDate insertWindowStart = getMonthlyWindowStart(lastInsert.toLocalDate());
+
+        if (currentWindowStart == null || insertWindowStart == null) {
+            return false;
+        }
+
+        return currentWindowStart.equals(insertWindowStart);
+    }
+
+
+    private boolean evaluateAndUpdatePenaltyStatus(Vehicle vehicle) {
+
+        List<IntervalInsert> lastSix =
+                intervalInsertRepository.findTop6ByVehicleOrderByTimeOfEntryDesc(vehicle);
+
+        if (lastSix.size() < 6) {
+            return vehicle.isPenaltyActive();
+        }
+
+        boolean anyNotLate = lastSix.stream().anyMatch(i -> !i.isLate());
+
+        if (vehicle.isPenaltyActive() && anyNotLate) {
+            vehicle.setPenaltyActive(false);
+            vehicleRepository.save(vehicle);
+            return false;
+        }
+
+        if (vehicle.isPenaltyActive()) {
+            return true;
+        }
+
+        if (lastSix.stream().allMatch(IntervalInsert::isLate)) {
+
+            long kmLate = lastSix.stream()
+                    .filter(i -> i.getUnit() == IntervalUnit.KILOMETERS)
+                    .count();
+
+            long fuelLate = lastSix.stream()
+                    .filter(i -> i.getUnit() == IntervalUnit.BURNT_FUEL)
+                    .count();
+
+            if (kmLate == 3 && fuelLate == 3) {
+                vehicle.setPenaltyActive(true);
+                vehicleRepository.save(vehicle);
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private boolean isInInsertWindow(Vehicle vehicle, Clock clock) {
-        LocalDateTime now = LocalDateTime.now(clock);
+        LocalDate today = LocalDate.now(clock);
 
         return switch (vehicle.getInsertPeriodType()) {
-            case WEEKLY -> isInLastTwoDaysOfWeek(now);
-            case MONTHLY -> isInCurrentMonthWindow(now);
+            case WEEKLY ->
+                    isWeeklyNormalWindow(today) || isWeeklyLateWindow(today);
+            case MONTHLY ->
+                    isMonthlyNormalWindow(today) || isMonthlyLateWindow(today);
         };
     }
 
     public InsertWindowStatusDto calculate(Vehicle vehicle, Clock clock) {
-        LocalDateTime now = LocalDateTime.now(clock);
+
+        boolean penaltyActive = evaluateAndUpdatePenaltyStatus(vehicle);
 
         boolean inWindow = isInInsertWindow(vehicle, clock);
 
-        boolean insertedKm = wasInsertedThisWindow(vehicle.getLastInsertKilometers(), vehicle.getInsertPeriodType(), clock);
-        boolean insertedFuel = wasInsertedThisWindow(vehicle.getLastInsertFuel(), vehicle.getInsertPeriodType(), clock);
+        boolean insertedKmThisWindow;
+        boolean insertedFuelThisWindow;
 
-        boolean canInsertKm = vehicle.getCondition() != Condition.UNKNOWN && inWindow && !insertedKm;
-        boolean canInsertFuel = vehicle.getCondition() != Condition.UNKNOWN && inWindow && !insertedFuel;
+        if (vehicle.getInsertPeriodType() == IntervalInsertPeriod.WEEKLY) {
+            insertedKmThisWindow =
+                    wasInsertedInCurrentWeeklyWindow(vehicle.getLastInsertKilometers(), clock);
+            insertedFuelThisWindow =
+                    wasInsertedInCurrentWeeklyWindow(vehicle.getLastInsertFuel(), clock);
+        } else {
+            insertedKmThisWindow =
+                    wasInsertedInCurrentMonthlyWindow(vehicle.getLastInsertKilometers(), clock);
+            insertedFuelThisWindow =
+                    wasInsertedInCurrentMonthlyWindow(vehicle.getLastInsertFuel(), clock);
+        }
 
-        boolean completed = insertedKm && insertedFuel;
+        boolean canInsertKm =
+                vehicle.getCondition() != Condition.UNKNOWN
+                        && inWindow
+                        && !insertedKmThisWindow;
 
-        boolean isInsertUpcoming = !inWindow;
+        boolean canInsertFuel =
+                vehicle.getCondition() != Condition.UNKNOWN
+                        && inWindow
+                        && !insertedFuelThisWindow;
+
+        LocalDate today = LocalDate.now(clock);
+
+        boolean isNormalWindowToday =
+                vehicle.getInsertPeriodType() == IntervalInsertPeriod.WEEKLY
+                        ? isWeeklyNormalWindow(today)
+                        : isMonthlyNormalWindow(today);
+
+        boolean isLateWindowToday =
+                vehicle.getInsertPeriodType() == IntervalInsertPeriod.WEEKLY
+                        ? isWeeklyLateWindow(today)
+                        : isMonthlyLateWindow(today);
+
+        if (penaltyActive && isLateWindowToday) {
+            canInsertKm = false;
+            canInsertFuel = false;
+        }
+
+        boolean completed = insertedKmThisWindow && insertedFuelThisWindow && isNormalWindowToday;
+
+        boolean isInsertUpcoming;
+
+        if (vehicle.getInsertPeriodType() == IntervalInsertPeriod.WEEKLY) {
+            // Completed in the normal window (Sat/Sun)
+            if (insertedKmThisWindow && insertedFuelThisWindow) {
+                // Today is late window (Mon/Tue)
+                isInsertUpcoming = isWeeklyLateWindow(today);
+            } else {
+                isInsertUpcoming = false;
+            }
+        } else {
+            if (insertedKmThisWindow && insertedFuelThisWindow) {
+                isInsertUpcoming = isMonthlyLateWindow(today);
+            } else {
+                isInsertUpcoming = false;
+            }
+        }
+
+        if(!inWindow && (vehicle.getLastInsertKilometers() != null || vehicle.getLastInsertFuel() != null)){
+            isInsertUpcoming = true;
+        }
+
+        if(vehicle.getLastInsertFuel() == null && vehicle.getLastInsertKilometers() == null && !inWindow){
+            isInsertUpcoming = true;
+        }
 
         return new InsertWindowStatusDto(
                 inWindow,
                 canInsertKm,
                 canInsertFuel,
-                insertedKm,
-                insertedFuel,
+                insertedKmThisWindow,
+                insertedFuelThisWindow,
                 completed,
-                isInsertUpcoming
+                isInsertUpcoming,
+                penaltyActive
         );
     }
 }

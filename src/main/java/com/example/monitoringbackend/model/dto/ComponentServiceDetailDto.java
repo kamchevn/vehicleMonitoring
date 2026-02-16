@@ -2,7 +2,7 @@ package com.example.monitoringbackend.model.dto;
 
 import com.example.monitoringbackend.model.enumerations.Condition;
 
-public class ComponentCheckDetailDto {
+public class ComponentServiceDetailDto {
     private Long componentId;
     private Condition currentCondition;
 

@@ -31,8 +31,8 @@ public class VehicleApplicationServiceImpl implements VehicleApplicationService 
     }
 
     @Override
-    public List<DisplayVehicleDto> findAll() {
-        List<Vehicle> vehicles = vehicleService.findAll();
+    public List<DisplayVehicleDto> findAll(UserDetails user) {
+        List<Vehicle> vehicles = vehicleService.findAll(user);
         return vehicles.stream().map(DisplayVehicleDto::from).toList();
     }
 

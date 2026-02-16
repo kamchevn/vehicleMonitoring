@@ -10,4 +10,5 @@ import java.util.List;
 @Repository
 public interface IntervalInsertRepository extends JpaRepository<IntervalInsert,Long> {
     List<IntervalInsert> findAllByVehicle(Vehicle vehicle);
+    List<IntervalInsert> findTop6ByVehicleOrderByTimeOfEntryDesc(Vehicle vehicle);
 }
