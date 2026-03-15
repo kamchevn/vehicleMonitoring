@@ -39,9 +39,10 @@ A web application for monitoring ground-type vehicles, tracking their components
 
 1. Clone the repository:
 
-```bash```
+```bash
 git clone <repo_url>
 cd monitoring-backend
+```
 
 2. Configure application.properties or application.yml with your PostgreSQL connection:
 
@@ -54,9 +55,10 @@ server.address=0.0.0.0
 
 3. Build and run the backend:
 
+```bash
 mvn clean package
 java -jar target/monitoring-backend-0.0.1-SNAPSHOT.jar
-
+```
 
 ---
 
@@ -64,11 +66,11 @@ java -jar target/monitoring-backend-0.0.1-SNAPSHOT.jar
 
 1. Navigate to the frontend folder:
 
-```bash```
+```bash
 cd monitoring-frontend
 npm install
 npm run build
-
+```
 ---
 
 ## Deployment Overview
