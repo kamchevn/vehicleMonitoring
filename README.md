@@ -45,13 +45,14 @@ cd monitoring-backend
 ```
 
 2. Configure application.properties or application.yml with your PostgreSQL connection:
-
+```bash
 spring.datasource.url=jdbc:postgresql://<RDS_HOST>:5432/<DB_NAME>
 spring.datasource.username=<USERNAME>
 spring.datasource.password=<PASSWORD>
 spring.jpa.hibernate.ddl-auto=update
 server.port=8080
 server.address=0.0.0.0
+```
 
 3. Build and run the backend:
 
@@ -131,14 +132,18 @@ npm run build
 
 ## Project Structure
 
+```bash
 monitoring-backend/      # Spring Boot backend
   ├─ src/main/java
   ├─ src/main/resources
   └─ pom.xml
+```
 
+```bash
 monitoring-frontend/     # React frontend
   ├─ src/
   └─ package.json
+```
 
 ## Environment Variables / Secrets
 
