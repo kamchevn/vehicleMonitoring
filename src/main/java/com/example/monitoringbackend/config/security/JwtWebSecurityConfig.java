@@ -4,7 +4,8 @@ import com.example.monitoringbackend.security.CustomUsernamePasswordAuthenticati
 import com.example.monitoringbackend.web.filters.JwtFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -17,13 +18,15 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
 
-@Profile("dev")
 @Configuration
 @EnableWebSecurity
 public class JwtWebSecurityConfig {
 
     private final CustomUsernamePasswordAuthenticationProvider authenticationProvider;
     private final JwtFilter jwtFilter;
+
+    @Value("${app.cors.allowed-origins}")
+    private String allowedOrigins;
 
     public JwtWebSecurityConfig(CustomUsernamePasswordAuthenticationProvider authenticationProvider, JwtFilter jwtFilter) {
         this.authenticationProvider = authenticationProvider;
@@ -33,9 +36,15 @@ public class JwtWebSecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
-        corsConfiguration.setAllowedOrigins(List.of("http://localhost:3000"));
-        corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
-        corsConfiguration.setAllowedHeaders(List.of("*"));
+        corsConfiguration.setAllowedOrigins(List.of(allowedOrigins.split(",")));
+        corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        corsConfiguration.setAllowedHeaders(List.of(
+                "Authorization",
+                "Content-Type",
+                "Accept"
+        ));
+        corsConfiguration.setAllowCredentials(true);
+        corsConfiguration.setExposedHeaders(List.of("Authorization"));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", corsConfiguration);
         return source;
@@ -50,6 +59,7 @@ public class JwtWebSecurityConfig {
                 )
                 .authorizeHttpRequests(authorizeHttpRequestsCustomizer ->
                         authorizeHttpRequestsCustomizer
+                                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                                 .requestMatchers(
                                         "/swagger-ui/**",
                                         "/v3/api-docs/**",
