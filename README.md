@@ -120,7 +120,7 @@ npm run build
 | POST   | /api/service/{id}                 | Record completed service                          |
 | GET    | /api/service                      | View all services across all vehicles (Pageable)  |
 
-To view all of the endpoints and their request parameters / bodies, run the backend application and access:
+To view all of the endpoints and their request parameters/bodies, run the backend application and access the Swagger documentation via:
   - **http://localhost:8080/swagger-ui/index.html** (local)
   - **https://<domain_url>/swagger-ui/index.html** (production)
 
