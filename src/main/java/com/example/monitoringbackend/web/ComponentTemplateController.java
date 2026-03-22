@@ -3,6 +3,8 @@ package com.example.monitoringbackend.web;
 import com.example.monitoringbackend.model.*;
 import com.example.monitoringbackend.model.enumerations.*;
 import com.example.monitoringbackend.service.domain.ComponentTemplateService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -10,6 +12,7 @@ import java.util.List;
 @RestController
 @CrossOrigin("*")
 @RequestMapping("/api/template")
+@Tag(name = "Component Template API", description = "Endpoints for component templates fetching.") // Swagger tag
 public class ComponentTemplateController {
     private final ComponentTemplateService componentTemplateService;
 
@@ -17,6 +20,7 @@ public class ComponentTemplateController {
         this.componentTemplateService = componentTemplateService;
     }
 
+    @Operation(summary = "List all components templates for vehicle type", description = "Finds all of the component templates based on vehicle type (and additional fuel, cooling and driven types if required) and returns the component templates found as a list.")
     @GetMapping("/{vehicleType}")
     private List<ComponentTemplate> getTemplatesForVehicleType(@PathVariable String vehicleType,
                                                                @RequestParam(required = false) String fuelType,
@@ -62,6 +66,7 @@ public class ComponentTemplateController {
         return componentTemplates;
     }
 
+    @Operation(summary = "List all components templates for vehicle and component type", description = "Finds all of the component templates based on vehicle and component type and returns the component templates found as a list.")
     @GetMapping("/{vehicleType}/{componentType}")
     private List<ComponentTemplate> getTemplatesForVehicleTypeAndComponentType(@PathVariable String vehicleType, @PathVariable String componentType){
         VehicleType vt = VehicleType.valueOf(vehicleType);

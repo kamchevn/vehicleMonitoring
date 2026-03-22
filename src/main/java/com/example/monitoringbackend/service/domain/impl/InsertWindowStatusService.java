@@ -109,14 +109,6 @@ public class InsertWindowStatusService {
             return vehicle.isPenaltyActive();
         }
 
-        boolean anyNotLate = lastSix.stream().anyMatch(i -> !i.isLate());
-
-        if (vehicle.isPenaltyActive() && anyNotLate) {
-            vehicle.setPenaltyActive(false);
-            vehicleRepository.save(vehicle);
-            return false;
-        }
-
         if (vehicle.isPenaltyActive()) {
             return true;
         }
@@ -133,6 +125,8 @@ public class InsertWindowStatusService {
 
             if (kmLate == 3 && fuelLate == 3) {
                 vehicle.setPenaltyActive(true);
+                vehicle.setPenaltyKmRemaining(3);
+                vehicle.setPenaltyFuelRemaining(3);
                 vehicleRepository.save(vehicle);
                 return true;
             }

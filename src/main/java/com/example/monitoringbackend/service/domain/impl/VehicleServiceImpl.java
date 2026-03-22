@@ -267,9 +267,19 @@ public class VehicleServiceImpl implements VehicleService {
         if(unit == IntervalUnit.KILOMETERS){
             vehicle.setLastInsertKilometers(insertTime);
             vehicle.setTotalKilometers(vehicle.getTotalKilometers() + amount);
+            if(vehicle.getPenaltyKmRemaining() > 0){
+                vehicle.setPenaltyKmRemaining(vehicle.getPenaltyKmRemaining() - 1);
+            }
         }
         else if(unit == IntervalUnit.BURNT_FUEL){
             vehicle.setLastInsertFuel(insertTime);
+            if(vehicle.getPenaltyFuelRemaining() > 0){
+                vehicle.setPenaltyFuelRemaining(vehicle.getPenaltyFuelRemaining() - 1);
+            }
+        }
+
+        if (vehicle.getPenaltyKmRemaining() == 0 && vehicle.getPenaltyFuelRemaining() == 0) {
+            vehicle.setPenaltyActive(false);
         }
 
         vehicleRepository.save(vehicle);

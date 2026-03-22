@@ -9,6 +9,8 @@ import com.example.monitoringbackend.model.dto.DisplayServiceDto;
 import com.example.monitoringbackend.service.application.ServiceApplicationService;
 import com.example.monitoringbackend.service.domain.ComponentServiceService;
 import com.example.monitoringbackend.service.domain.ComponentService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +23,8 @@ import java.util.List;
 @RestController
 @CrossOrigin("*")
 @RequestMapping("/api/service")
+@Tag(name = "Service API", description = "Endpoints for creating and listing vehicle regular/urgent services.") // Swagger tag
+
 public class ComponentServiceController {
     private final ComponentServiceService componentServiceService;
     private final ServiceApplicationService serviceApplicationService;
@@ -32,6 +36,7 @@ public class ComponentServiceController {
         this.componentService = componentService;
     }
 
+    @Operation(summary = "Returns service by id", description = "Finds the service by it's id and returns the service object matching.")
     @GetMapping("/{id}")
     public ResponseEntity<?> getCheckById (@PathVariable Long id){
         try {
@@ -41,6 +46,7 @@ public class ComponentServiceController {
         }
     }
 
+    @Operation(summary = "List all services for user as pageable", description = "Checks the user and his role, finds the services based on his role and returns them as pageable. There can be applied vehicle and serviceType filters for the services searching.")
     @GetMapping("/page")
     public ResponseEntity<Page<DisplayServiceDto>> getComponentServicesPage(
             @AuthenticationPrincipal UserDetails user,
@@ -52,6 +58,8 @@ public class ComponentServiceController {
         Page<DisplayServiceDto> page = this.serviceApplicationService.findPage(user,vehicleId, serviceType, Integer.parseInt(pageNum)-1, Integer.parseInt(pageSize));
         return ResponseEntity.ok(page);
     }
+
+    @Operation(summary = "Do a regular/urgent service for a vehicle", description = "Find the vehicle by it's id, finds the components selected from the form, updates their counters and conditions, as well as the condition of the vehicle, and creates a new service object in the database.")
     @PostMapping("/{id}")
     public ResponseEntity<String> serviceVehicle(
             @PathVariable Long id,

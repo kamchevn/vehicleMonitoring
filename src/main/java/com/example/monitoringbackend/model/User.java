@@ -3,7 +3,6 @@ package com.example.monitoringbackend.model;
 import com.example.monitoringbackend.model.enumerations.Role;
 import jakarta.persistence.*;
 
-import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 

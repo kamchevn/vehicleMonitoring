@@ -47,7 +47,8 @@ public class Vehicle {
     private User user;
 
     private boolean penaltyActive = false;
-
+    private int penaltyKmRemaining = 0;
+    private int penaltyFuelRemaining = 0;
     public Vehicle() {
     }
 
@@ -194,5 +195,21 @@ public class Vehicle {
 
     public void setPenaltyActive(boolean penaltyActive) {
         this.penaltyActive = penaltyActive;
+    }
+
+    public int getPenaltyKmRemaining() {
+        return penaltyKmRemaining;
+    }
+
+    public void setPenaltyKmRemaining(int penaltyKmRemaining) {
+        this.penaltyKmRemaining = penaltyKmRemaining;
+    }
+
+    public int getPenaltyFuelRemaining() {
+        return penaltyFuelRemaining;
+    }
+
+    public void setPenaltyFuelRemaining(int penaltyFuelRemaining) {
+        this.penaltyFuelRemaining = penaltyFuelRemaining;
     }
 }

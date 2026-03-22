@@ -1,12 +1,10 @@
 package com.example.monitoringbackend.web;
 
-import com.example.monitoringbackend.model.User;
 import com.example.monitoringbackend.model.dto.CreateUserDto;
 import com.example.monitoringbackend.model.dto.DisplayUserDto;
 import com.example.monitoringbackend.model.dto.LoginResponseDto;
 import com.example.monitoringbackend.model.dto.LoginUserDto;
 import com.example.monitoringbackend.exceptions.InvalidUserCredentialsException;
-import com.example.monitoringbackend.exceptions.PasswordsDoNotMatchException;
 import com.example.monitoringbackend.service.application.UserApplicationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -41,13 +39,6 @@ public class UserController {
     )
     @PostMapping("/register")
     public ResponseEntity<DisplayUserDto> register(@Valid @RequestBody CreateUserDto createUserDto) {
-//        try {
-//            return userApplicationService.register(createUserDto)
-//                    .map(ResponseEntity::ok)
-//                    .orElse(ResponseEntity.notFound().build());
-//        } catch (PasswordsDoNotMatchException exception) {
-//            return ResponseEntity.badRequest().build();
-//        }
         return userApplicationService.register(createUserDto)
                 .map(ResponseEntity::ok)
                 .orElseThrow();
