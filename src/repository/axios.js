@@ -2,7 +2,7 @@ import axios from "axios";
 import { getToken, logout } from "../service/AuthService";
 import { jwtDecode } from "jwt-decode";
 const axiosInstance = axios.create({
-    baseURL: "https://myvehiclemonitoring.duckdns.org/api",
+    baseURL: "https://vehicle-monitoring.duckdns.org/api",
     headers: {
         "Content-Type": "application/json",
     },
