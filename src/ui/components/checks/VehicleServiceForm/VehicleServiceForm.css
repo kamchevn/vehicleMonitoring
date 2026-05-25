@@ -1,0 +1,39 @@
+h1 {
+    margin-left: 10px;
+}
+@media screen and (min-width: 990px) {
+    .veryGood{
+        width: 200%;
+    }
+    .veryGoodRow{
+        margin-right: 50px;
+    }
+}
+@media screen and (min-width: 1200px) {
+    .veryGood{
+        width: 150%;
+    }
+    .veryGoodRow{
+        margin-right: 50px;
+    }
+}
+@media screen and (min-width: 1400px) {
+    .veryGood{
+        width: 120%;
+    }
+    .veryGoodRow{
+        margin-right: 50px;
+    }
+}
+
+@media screen and (min-width: 768px) and (max-width: 990px){
+    .veryGood{
+        width: 110%;
+    }
+    .goodRow{
+        margin-right: 20px;
+    }
+    .poorRow{
+        margin-right: 15px;
+    }
+}
