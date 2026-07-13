@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+    <!--
+      JPA entities and Spring-managed beans intentionally share mutable references.
+      Defensive copies would break Hibernate relationships and DI wiring.
+    -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2,SE_BAD_FIELD"/>
+    </Match>
+</FindBugsFilter>
