@@ -10,47 +10,55 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class UserServiceImpl implements UserService {
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
+  private final UserRepository userRepository;
+  private final PasswordEncoder passwordEncoder;
 
-    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
+  public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    this.userRepository = userRepository;
+    this.passwordEncoder = passwordEncoder;
+  }
+
+  @Override
+  public User getUser(String username) {
+    return userRepository
+        .findByUsername(username)
+        .orElseThrow(() -> new UserNotFoundException(username));
+  }
+
+  @Override
+  public User registerUser(
+      String username,
+      String password,
+      String repeatPassword,
+      String name,
+      String surname,
+      Role role) {
+    if (!password.equals(repeatPassword)) {
+      throw new PasswordsDoNotMatchException();
     }
 
-    @Override
-    public User getUser(String username) {
-        return userRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException(username));
+    if (!password.matches(".*[A-Z].*")
+        || !password.matches(".*\\d.*")
+        || !password.matches(".*[^A-Za-z0-9].*")) {
+
+      throw new InvalidPasswordFormatException();
     }
 
-    @Override
-    public User registerUser(String username, String password, String repeatPassword, String name, String surname, Role role) {
-        if (!password.equals(repeatPassword)) {
-            throw new PasswordsDoNotMatchException();
-        }
-
-        if (!password.matches(".*[A-Z].*") ||
-                !password.matches(".*\\d.*") ||
-                !password.matches(".*[^A-Za-z0-9].*")) {
-
-            throw new InvalidPasswordFormatException();
-        }
-
-        if (this.userRepository.findByUsername(username).isPresent()) {
-            throw new UsernameAlreadyExistsException(username);
-        }
-
-        User user = new User(username, passwordEncoder.encode(password), name, surname, role);
-
-        return userRepository.save(user);
+    if (this.userRepository.findByUsername(username).isPresent()) {
+      throw new UsernameAlreadyExistsException(username);
     }
 
-    @Override
-    public User login(String username, String password) throws InvalidUserCredentialsException {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(InvalidUserCredentialsException::new);
-        if (!passwordEncoder.matches(password, user.getPassword()))
-            throw new InvalidUserCredentialsException();
-        return user;
-    }
+    User user = new User(username, passwordEncoder.encode(password), name, surname, role);
+
+    return userRepository.save(user);
+  }
+
+  @Override
+  public User login(String username, String password) throws InvalidUserCredentialsException {
+    User user =
+        userRepository.findByUsername(username).orElseThrow(InvalidUserCredentialsException::new);
+    if (!passwordEncoder.matches(password, user.getPassword()))
+      throw new InvalidUserCredentialsException();
+    return user;
+  }
 }

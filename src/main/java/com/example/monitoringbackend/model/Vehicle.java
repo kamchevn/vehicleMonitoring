@@ -5,211 +5,226 @@ import com.example.monitoringbackend.model.enumerations.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
-
 import java.time.LocalDateTime;
 
 @Entity
 public class Vehicle {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private String name;
-    private Integer year;
-    private Integer totalKilometers;
-    @Enumerated(EnumType.STRING)
-    private VehicleType type;
-    @Nullable
-    @Enumerated(EnumType.STRING)
-    private VehicleFuelType fuelType;
-    @Nullable
-    @Enumerated(EnumType.STRING)
-    private CoolingType coolingType;
-    @Nullable
-    @Enumerated(EnumType.STRING)
-    private DrivenType drivenType;
-    @Enumerated(EnumType.STRING)
-    private Condition condition;
-    private boolean needsCheck = false;
-    private boolean hasWarnings = false;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @Enumerated(EnumType.STRING)
-    private IntervalInsertPeriod insertPeriodType;
+  private String name;
+  private Integer year;
+  private Integer totalKilometers;
 
-    private LocalDateTime lastInsertKilometers = null;
-    private LocalDateTime lastInsertFuel = null;
+  @Enumerated(EnumType.STRING)
+  private VehicleType type;
 
-    @Transient
-    private InsertWindowStatusDto insertWindowStatus;
+  @Nullable
+  @Enumerated(EnumType.STRING)
+  private VehicleFuelType fuelType;
 
-    @JsonIgnore
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "username", nullable = false)
-    private User user;
+  @Nullable
+  @Enumerated(EnumType.STRING)
+  private CoolingType coolingType;
 
-    private boolean penaltyActive = false;
-    private int penaltyKmRemaining = 0;
-    private int penaltyFuelRemaining = 0;
-    public Vehicle() {
-    }
+  @Nullable
+  @Enumerated(EnumType.STRING)
+  private DrivenType drivenType;
 
-    public Vehicle(String name, Integer year, Integer totalKilometers, VehicleType type, VehicleFuelType fuelType, CoolingType coolingType, DrivenType drivenType, Condition condition, IntervalInsertPeriod insertPeriodType, User user) {
-        this.name = name;
-        this.year = year;
-        this.totalKilometers = totalKilometers;
-        this.type = type;
-        this.fuelType = fuelType;
-        this.coolingType = coolingType;
-        this.drivenType = drivenType;
-        this.condition = condition;
-        this.insertPeriodType = insertPeriodType;
-        this.user = user;
-    }
+  @Enumerated(EnumType.STRING)
+  private Condition condition;
 
-    public Long getId() {
-        return id;
-    }
+  private boolean needsCheck = false;
+  private boolean hasWarnings = false;
 
-    public String getName() {
-        return name;
-    }
+  @Enumerated(EnumType.STRING)
+  private IntervalInsertPeriod insertPeriodType;
 
-    public void setName(String name) {
-        this.name = name;
-    }
+  private LocalDateTime lastInsertKilometers = null;
+  private LocalDateTime lastInsertFuel = null;
 
-    public Integer getYear() {
-        return year;
-    }
+  @Transient private InsertWindowStatusDto insertWindowStatus;
 
-    public void setYear(Integer year) {
-        this.year = year;
-    }
+  @JsonIgnore
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "username", nullable = false)
+  private User user;
 
-    public Integer getTotalKilometers() {
-        return totalKilometers;
-    }
+  private boolean penaltyActive = false;
+  private int penaltyKmRemaining = 0;
+  private int penaltyFuelRemaining = 0;
 
-    public void setTotalKilometers(Integer totalKilometers) {
-        this.totalKilometers = totalKilometers;
-    }
+  public Vehicle() {}
 
-    public VehicleType getType() {
-        return type;
-    }
+  public Vehicle(
+      String name,
+      Integer year,
+      Integer totalKilometers,
+      VehicleType type,
+      VehicleFuelType fuelType,
+      CoolingType coolingType,
+      DrivenType drivenType,
+      Condition condition,
+      IntervalInsertPeriod insertPeriodType,
+      User user) {
+    this.name = name;
+    this.year = year;
+    this.totalKilometers = totalKilometers;
+    this.type = type;
+    this.fuelType = fuelType;
+    this.coolingType = coolingType;
+    this.drivenType = drivenType;
+    this.condition = condition;
+    this.insertPeriodType = insertPeriodType;
+    this.user = user;
+  }
 
-    public void setType(VehicleType type) {
-        this.type = type;
-    }
+  public Long getId() {
+    return id;
+  }
 
-    public VehicleFuelType getFuelType() {
-        return fuelType;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public void setFuelType(VehicleFuelType fuelType) {
-        this.fuelType = fuelType;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    public CoolingType getCoolingType() {
-        return coolingType;
-    }
+  public Integer getYear() {
+    return year;
+  }
 
-    public void setCoolingType(CoolingType coolingType) {
-        this.coolingType = coolingType;
-    }
+  public void setYear(Integer year) {
+    this.year = year;
+  }
 
-    public DrivenType getDrivenType() {
-        return drivenType;
-    }
+  public Integer getTotalKilometers() {
+    return totalKilometers;
+  }
 
-    public void setDrivenType(DrivenType drivenType) {
-        this.drivenType = drivenType;
-    }
+  public void setTotalKilometers(Integer totalKilometers) {
+    this.totalKilometers = totalKilometers;
+  }
 
-    public Condition getCondition() {
-        return condition;
-    }
+  public VehicleType getType() {
+    return type;
+  }
 
-    public void setCondition(Condition condition) {
-        this.condition = condition;
-    }
+  public void setType(VehicleType type) {
+    this.type = type;
+  }
 
-    public boolean isNeedsCheck() {
-        return needsCheck;
-    }
+  public VehicleFuelType getFuelType() {
+    return fuelType;
+  }
 
-    public void setNeedsCheck(boolean needsCheck) {
-        this.needsCheck = needsCheck;
-    }
+  public void setFuelType(VehicleFuelType fuelType) {
+    this.fuelType = fuelType;
+  }
 
-    public boolean isHasWarnings() {
-        return hasWarnings;
-    }
+  public CoolingType getCoolingType() {
+    return coolingType;
+  }
 
-    public void setHasWarnings(boolean hasWarnings) {
-        this.hasWarnings = hasWarnings;
-    }
+  public void setCoolingType(CoolingType coolingType) {
+    this.coolingType = coolingType;
+  }
 
-    public IntervalInsertPeriod getInsertPeriodType() {
-        return insertPeriodType;
-    }
+  public DrivenType getDrivenType() {
+    return drivenType;
+  }
 
-    public void setInsertPeriodType(IntervalInsertPeriod insertPeriodType) {
-        this.insertPeriodType = insertPeriodType;
-    }
+  public void setDrivenType(DrivenType drivenType) {
+    this.drivenType = drivenType;
+  }
 
-    public LocalDateTime getLastInsertKilometers() {
-        return lastInsertKilometers;
-    }
+  public Condition getCondition() {
+    return condition;
+  }
 
-    public void setLastInsertKilometers(LocalDateTime lastInsertKilometers) {
-        this.lastInsertKilometers = lastInsertKilometers;
-    }
+  public void setCondition(Condition condition) {
+    this.condition = condition;
+  }
 
-    public LocalDateTime getLastInsertFuel() {
-        return lastInsertFuel;
-    }
+  public boolean isNeedsCheck() {
+    return needsCheck;
+  }
 
-    public void setLastInsertFuel(LocalDateTime lastInsertFuel) {
-        this.lastInsertFuel = lastInsertFuel;
-    }
+  public void setNeedsCheck(boolean needsCheck) {
+    this.needsCheck = needsCheck;
+  }
 
-    public InsertWindowStatusDto getInsertWindowStatus() {
-        return insertWindowStatus;
-    }
+  public boolean isHasWarnings() {
+    return hasWarnings;
+  }
 
-    public void setInsertWindowStatus(InsertWindowStatusDto insertWindowStatus) {
-        this.insertWindowStatus = insertWindowStatus;
-    }
+  public void setHasWarnings(boolean hasWarnings) {
+    this.hasWarnings = hasWarnings;
+  }
 
-    public User getUser() {
-        return user;
-    }
+  public IntervalInsertPeriod getInsertPeriodType() {
+    return insertPeriodType;
+  }
 
-    public void setUser(User user) {
-        this.user = user;
-    }
+  public void setInsertPeriodType(IntervalInsertPeriod insertPeriodType) {
+    this.insertPeriodType = insertPeriodType;
+  }
 
-    public boolean isPenaltyActive() {
-        return penaltyActive;
-    }
+  public LocalDateTime getLastInsertKilometers() {
+    return lastInsertKilometers;
+  }
 
-    public void setPenaltyActive(boolean penaltyActive) {
-        this.penaltyActive = penaltyActive;
-    }
+  public void setLastInsertKilometers(LocalDateTime lastInsertKilometers) {
+    this.lastInsertKilometers = lastInsertKilometers;
+  }
 
-    public int getPenaltyKmRemaining() {
-        return penaltyKmRemaining;
-    }
+  public LocalDateTime getLastInsertFuel() {
+    return lastInsertFuel;
+  }
 
-    public void setPenaltyKmRemaining(int penaltyKmRemaining) {
-        this.penaltyKmRemaining = penaltyKmRemaining;
-    }
+  public void setLastInsertFuel(LocalDateTime lastInsertFuel) {
+    this.lastInsertFuel = lastInsertFuel;
+  }
 
-    public int getPenaltyFuelRemaining() {
-        return penaltyFuelRemaining;
-    }
+  public InsertWindowStatusDto getInsertWindowStatus() {
+    return insertWindowStatus;
+  }
 
-    public void setPenaltyFuelRemaining(int penaltyFuelRemaining) {
-        this.penaltyFuelRemaining = penaltyFuelRemaining;
-    }
+  public void setInsertWindowStatus(InsertWindowStatusDto insertWindowStatus) {
+    this.insertWindowStatus = insertWindowStatus;
+  }
+
+  public User getUser() {
+    return user;
+  }
+
+  public void setUser(User user) {
+    this.user = user;
+  }
+
+  public boolean isPenaltyActive() {
+    return penaltyActive;
+  }
+
+  public void setPenaltyActive(boolean penaltyActive) {
+    this.penaltyActive = penaltyActive;
+  }
+
+  public int getPenaltyKmRemaining() {
+    return penaltyKmRemaining;
+  }
+
+  public void setPenaltyKmRemaining(int penaltyKmRemaining) {
+    this.penaltyKmRemaining = penaltyKmRemaining;
+  }
+
+  public int getPenaltyFuelRemaining() {
+    return penaltyFuelRemaining;
+  }
+
+  public void setPenaltyFuelRemaining(int penaltyFuelRemaining) {
+    this.penaltyFuelRemaining = penaltyFuelRemaining;
+  }
 }

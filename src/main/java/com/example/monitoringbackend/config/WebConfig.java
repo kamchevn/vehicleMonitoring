@@ -5,5 +5,4 @@ import org.springframework.data.web.config.EnableSpringDataWebSupport;
 
 @Configuration
 @EnableSpringDataWebSupport
-public class WebConfig {
-}
+public class WebConfig {}
