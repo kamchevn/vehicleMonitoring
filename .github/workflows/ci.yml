@@ -1,0 +1,49 @@
+name: Spring Boot CI
+
+on:
+  pull_request:
+    branches: [backend]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      security-events: write
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+          cache: maven
+
+      - name: Verify formatting
+        run: mvn spotless:check
+
+      - name: Run checkstyle
+        run: mvn checkstyle:check
+
+      - name: Run SpotBugs
+        run: mvn spotbugs:check
+
+      - name: Run tests + build
+        run: mvn clean verify
+
+      - name: Run dependency security scan
+        run: mvn dependency-check:check
+
+      - name: Upload reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: maven-reports
+          path: |
+            target/checkstyle-result.xml
+            target/spotbugsXml.xml
+            target/dependency-check-report.html
