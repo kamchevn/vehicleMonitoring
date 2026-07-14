@@ -36,7 +36,9 @@ jobs:
         run: mvn clean verify
 
       - name: Run dependency security scan
-        run: mvn dependency-check:check
+        env:
+          NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
+        run: mvn dependency-check:check -DnvdApiKeyEnvironmentVariable=NVD_API_KEY
 
       - name: Upload reports
         if: always()
