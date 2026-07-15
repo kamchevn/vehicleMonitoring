@@ -11,13 +11,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @EntityScan("com.example.monitoringbackend")
 public class MonitoringBackendApplication {
 
-    public static void main(String[] args) {
-        SpringApplication.run(MonitoringBackendApplication.class, args);
-    }
+  public static void main(String[] args) {
+    SpringApplication.run(MonitoringBackendApplication.class, args);
+  }
 
-    @Bean
-    PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(10);
-    }
-
+  @Bean
+  PasswordEncoder passwordEncoder() {
+    return new BCryptPasswordEncoder(10);
+  }
 }

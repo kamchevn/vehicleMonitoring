@@ -1,16 +1,20 @@
 package com.example.monitoringbackend.model.enumerations;
 
 public enum Condition {
-    UNKNOWN,VERY_GOOD,GOOD,POOR,OOS;
+  UNKNOWN,
+  VERY_GOOD,
+  GOOD,
+  POOR,
+  OOS;
 
-    public Condition next() {
-        int nextOrdinal = this.ordinal() + 1;
-        Condition[] values = Condition.values();
+  public Condition next() {
+    int nextOrdinal = this.ordinal() + 1;
+    Condition[] values = Condition.values();
 
-        // If already last, stay last
-        if (nextOrdinal >= values.length) {
-            return this;
-        }
-        return values[nextOrdinal];
+    // If already last, stay last
+    if (nextOrdinal >= values.length) {
+      return this;
     }
+    return values[nextOrdinal];
+  }
 }

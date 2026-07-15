@@ -6,63 +6,68 @@ import jakarta.persistence.*;
 
 @Entity
 public class ComponentServiceDetail {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    @JsonIgnore
-    @ManyToOne
-    @JoinColumn(name = "component_service_id")
-    private ComponentService componentService;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "component_id")
-    private Component component;
+  @JsonIgnore
+  @ManyToOne
+  @JoinColumn(name = "component_service_id")
+  private ComponentService componentService;
 
-    private Condition previousCondition;
-    private Condition currentCondition;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "component_id")
+  private Component component;
 
-    public ComponentServiceDetail() {}
+  private Condition previousCondition;
+  private Condition currentCondition;
 
-    public ComponentServiceDetail(ComponentService componentService, Component component, Condition previousCondition, Condition currentCondition) {
-        this.componentService = componentService;
-        this.component = component;
-        this.previousCondition = previousCondition;
-        this.currentCondition = currentCondition;
-    }
+  public ComponentServiceDetail() {}
 
-    public Long getId() {
-        return id;
-    }
+  public ComponentServiceDetail(
+      ComponentService componentService,
+      Component component,
+      Condition previousCondition,
+      Condition currentCondition) {
+    this.componentService = componentService;
+    this.component = component;
+    this.previousCondition = previousCondition;
+    this.currentCondition = currentCondition;
+  }
 
-    public ComponentService getComponentCheck() {
-        return componentService;
-    }
+  public Long getId() {
+    return id;
+  }
 
-    public void setComponentCheck(ComponentService componentService) {
-        this.componentService = componentService;
-    }
+  public ComponentService getComponentCheck() {
+    return componentService;
+  }
 
-    public Component getComponent() {
-        return component;
-    }
+  public void setComponentCheck(ComponentService componentService) {
+    this.componentService = componentService;
+  }
 
-    public void setComponent(Component component) {
-        this.component = component;
-    }
+  public Component getComponent() {
+    return component;
+  }
 
-    public Condition getPreviousCondition() {
-        return previousCondition;
-    }
+  public void setComponent(Component component) {
+    this.component = component;
+  }
 
-    public void setPreviousCondition(Condition previousCondition) {
-        this.previousCondition = previousCondition;
-    }
+  public Condition getPreviousCondition() {
+    return previousCondition;
+  }
 
-    public Condition getCurrentCondition() {
-        return currentCondition;
-    }
+  public void setPreviousCondition(Condition previousCondition) {
+    this.previousCondition = previousCondition;
+  }
 
-    public void setCurrentCondition(Condition currentCondition) {
-        this.currentCondition = currentCondition;
-    }
+  public Condition getCurrentCondition() {
+    return currentCondition;
+  }
+
+  public void setCurrentCondition(Condition currentCondition) {
+    this.currentCondition = currentCondition;
+  }
 }

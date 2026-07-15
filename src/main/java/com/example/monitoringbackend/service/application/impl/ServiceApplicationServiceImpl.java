@@ -10,20 +10,22 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class ServiceApplicationServiceImpl implements ServiceApplicationService {
-    private final ComponentServiceService componentServiceService;
+  private final ComponentServiceService componentServiceService;
 
-    public ServiceApplicationServiceImpl(ComponentServiceService componentServiceService) {
-        this.componentServiceService = componentServiceService;
-    }
+  public ServiceApplicationServiceImpl(ComponentServiceService componentServiceService) {
+    this.componentServiceService = componentServiceService;
+  }
 
-    @Override
-    public DisplayServiceDto findById(Long checkId) {
-        return DisplayServiceDto.from(componentServiceService.findById(checkId));
-    }
+  @Override
+  public DisplayServiceDto findById(Long checkId) {
+    return DisplayServiceDto.from(componentServiceService.findById(checkId));
+  }
 
-    @Override
-    public Page<DisplayServiceDto> findPage(UserDetails user, Long vehicleId, String checkType, Integer pageNum, Integer pageSize) {
-        Page<ComponentService> checks = componentServiceService.findPage(user, vehicleId, checkType, pageNum, pageSize);
-        return checks.map(DisplayServiceDto::from);
-    }
+  @Override
+  public Page<DisplayServiceDto> findPage(
+      UserDetails user, Long vehicleId, String checkType, Integer pageNum, Integer pageSize) {
+    Page<ComponentService> checks =
+        componentServiceService.findPage(user, vehicleId, checkType, pageNum, pageSize);
+    return checks.map(DisplayServiceDto::from);
+  }
 }

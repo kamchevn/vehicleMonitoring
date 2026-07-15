@@ -1,10 +1,10 @@
 package com.example.monitoringbackend.web;
 
+import com.example.monitoringbackend.exceptions.InvalidUserCredentialsException;
 import com.example.monitoringbackend.model.dto.CreateUserDto;
 import com.example.monitoringbackend.model.dto.DisplayUserDto;
 import com.example.monitoringbackend.model.dto.LoginResponseDto;
 import com.example.monitoringbackend.model.dto.LoginUserDto;
-import com.example.monitoringbackend.exceptions.InvalidUserCredentialsException;
 import com.example.monitoringbackend.service.application.UserApplicationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -19,43 +19,39 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/user")
-@Tag(name = "User API", description = "Endpoints for user authentication and registration") // Swagger tag
+@Tag(
+    name = "User API",
+    description = "Endpoints for user authentication and registration") // Swagger tag
 public class UserController {
 
-    private final UserApplicationService userApplicationService;
+  private final UserApplicationService userApplicationService;
 
-    public UserController(UserApplicationService userApplicationService) {
-        this.userApplicationService = userApplicationService;
-    }
+  public UserController(UserApplicationService userApplicationService) {
+    this.userApplicationService = userApplicationService;
+  }
 
-    @Operation(summary = "Register a new user", description = "Creates a new user account")
-    @ApiResponses(
-            value = {@ApiResponse(
-                    responseCode = "200",
-                    description = "User registered successfully"
-            ), @ApiResponse(
-                    responseCode = "400", description = "Invalid input or passwords do not match"
-            )}
-    )
-    @PostMapping("/register")
-    public ResponseEntity<DisplayUserDto> register(@Valid @RequestBody CreateUserDto createUserDto) {
-        return userApplicationService.register(createUserDto)
-                .map(ResponseEntity::ok)
-                .orElseThrow();
-    }
+  @Operation(summary = "Register a new user", description = "Creates a new user account")
+  @ApiResponses(
+      value = {
+        @ApiResponse(responseCode = "200", description = "User registered successfully"),
+        @ApiResponse(responseCode = "400", description = "Invalid input or passwords do not match")
+      })
+  @PostMapping("/register")
+  public ResponseEntity<DisplayUserDto> register(@Valid @RequestBody CreateUserDto createUserDto) {
+    return userApplicationService.register(createUserDto).map(ResponseEntity::ok).orElseThrow();
+  }
 
-    @Operation(summary = "User login", description = "Authenticates a user and generates a JWT")
-    @ApiResponses(
-            value = {@ApiResponse(
-                    responseCode = "200",
-                    description = "User authenticated successfully"
-            ), @ApiResponse(responseCode = "404", description = "Invalid username or password")}
-    )
-    @PostMapping("/login")
-    public ResponseEntity<LoginResponseDto> login(@Valid @RequestBody LoginUserDto loginUserDto) {
-        return userApplicationService.login(loginUserDto)
-                .map(ResponseEntity::ok)
-                .orElseThrow(InvalidUserCredentialsException::new);
-    }
-
+  @Operation(summary = "User login", description = "Authenticates a user and generates a JWT")
+  @ApiResponses(
+      value = {
+        @ApiResponse(responseCode = "200", description = "User authenticated successfully"),
+        @ApiResponse(responseCode = "404", description = "Invalid username or password")
+      })
+  @PostMapping("/login")
+  public ResponseEntity<LoginResponseDto> login(@Valid @RequestBody LoginUserDto loginUserDto) {
+    return userApplicationService
+        .login(loginUserDto)
+        .map(ResponseEntity::ok)
+        .orElseThrow(InvalidUserCredentialsException::new);
+  }
 }

@@ -8,6 +8,5 @@ import org.springframework.data.repository.NoRepositoryBean;
 
 @NoRepositoryBean
 public interface JpaSpecificationRepository<T, ID> extends JpaRepository<T, ID> {
-    Page<T> findAll(Specification<T> filter, Pageable page);
+  Page<T> findAll(Specification<T> filter, Pageable page);
 }
-
