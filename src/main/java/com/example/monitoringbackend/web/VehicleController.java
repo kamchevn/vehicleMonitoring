@@ -11,6 +11,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.time.LocalDateTime;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -28,6 +30,8 @@ import org.springframework.web.bind.annotation.*;
         "Endpoints for vehicles CRUD and kilometers/burnt fuel insertion for a vehicle.") // Swagger
 // tag
 public class VehicleController {
+  private static final Logger LOGGER = LoggerFactory.getLogger(VehicleController.class);
+
   private final VehicleApplicationService vehicleService;
   private final VehicleService domainService;
 
@@ -174,7 +178,8 @@ public class VehicleController {
               "Successfully inserted %d%s for vehicle %d.",
               toAdd, unitType.equals("KILOMETERS") ? "km" : "L", vehicleId));
     } catch (IntervalDoesNotMatchException ex) {
-      return ResponseEntity.badRequest().body(ex.getMessage());
+      LOGGER.warn("Invalid interval submitted for vehicle {}", vehicleId, ex);
+      return ResponseEntity.badRequest().body("The submitted interval is invalid.");
     }
   }
 }

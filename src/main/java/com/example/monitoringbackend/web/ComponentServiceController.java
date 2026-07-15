@@ -12,6 +12,8 @@ import com.example.monitoringbackend.service.domain.ComponentServiceService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +29,8 @@ import org.springframework.web.bind.annotation.*;
     description =
         "Endpoints for creating and listing vehicle regular/urgent services.") // Swagger tag
 public class ComponentServiceController {
+  private static final Logger LOGGER = LoggerFactory.getLogger(ComponentServiceController.class);
+
   private final ComponentServiceService componentServiceService;
   private final ServiceApplicationService serviceApplicationService;
   private final ComponentService componentService;
@@ -100,7 +104,8 @@ public class ComponentServiceController {
       return ResponseEntity.ok(
           String.format("Successfully inserted new condition check for vehicle %d.", id));
     } catch (IntervalDoesNotMatchException ex) {
-      return ResponseEntity.badRequest().body(ex.getMessage());
+      LOGGER.warn("Invalid service interval submitted for vehicle {}", id, ex);
+      return ResponseEntity.badRequest().body("The submitted service interval is invalid.");
     }
   }
 }

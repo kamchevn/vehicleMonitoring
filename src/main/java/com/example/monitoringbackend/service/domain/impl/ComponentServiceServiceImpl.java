@@ -99,8 +99,7 @@ public class ComponentServiceServiceImpl implements ComponentServiceService {
       } else if (con == Condition.POOR) {
         counter = template.getMinCheckInterval();
       } else {
-        counter = template.getMinCheckInterval();
-        counter *= 1.3;
+        counter = Math.toIntExact(Math.round(template.getMinCheckInterval() * 1.3));
       }
 
       component.setCondition(con);
