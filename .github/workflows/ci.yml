@@ -12,6 +12,9 @@ jobs:
       contents: read
       security-events: write
 
+    env:
+      NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
+
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
@@ -32,13 +35,8 @@ jobs:
       - name: Run SpotBugs
         run: mvn spotbugs:check
 
-      - name: Run tests + build
+      - name: Run tests + build (includes OWASP dependency-check)
         run: mvn clean verify
-
-      - name: Run dependency security scan
-        env:
-          NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
-        run: mvn dependency-check:check -DnvdApiKeyEnvironmentVariable=NVD_API_KEY
 
       - name: Upload reports
         if: always()
