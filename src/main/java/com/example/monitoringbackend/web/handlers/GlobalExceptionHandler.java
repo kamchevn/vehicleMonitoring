@@ -17,6 +17,12 @@ public class GlobalExceptionHandler {
     return Map.of("message", ex.getMessage());
   }
 
+  @ExceptionHandler(EmailAlreadyExistsException.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  public Map<String, String> handleEmailExists(EmailAlreadyExistsException ex) {
+    return Map.of("message", ex.getMessage());
+  }
+
   @ExceptionHandler(InvalidPasswordFormatException.class)
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   public Map<String, String> handleInvalidPasswordFormat(InvalidPasswordFormatException ex) {
@@ -25,7 +31,13 @@ public class GlobalExceptionHandler {
 
   @ExceptionHandler(PasswordsDoNotMatchException.class)
   @ResponseStatus(HttpStatus.BAD_REQUEST)
-  public Map<String, String> handleInvalidPasswordFormat(PasswordsDoNotMatchException ex) {
+  public Map<String, String> handlePasswordsDoNotMatch(PasswordsDoNotMatchException ex) {
+    return Map.of("message", ex.getMessage());
+  }
+
+  @ExceptionHandler(InvalidConfirmationTokenException.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  public Map<String, String> handleInvalidConfirmationToken(InvalidConfirmationTokenException ex) {
     return Map.of("message", ex.getMessage());
   }
 
@@ -38,6 +50,12 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(InvalidUserCredentialsException.class)
   @ResponseStatus(HttpStatus.UNAUTHORIZED)
   public Map<String, String> handleInvalidCredentials(InvalidUserCredentialsException ex) {
+    return Map.of("message", ex.getMessage());
+  }
+
+  @ExceptionHandler(AccountNotEnabledException.class)
+  @ResponseStatus(HttpStatus.FORBIDDEN)
+  public Map<String, String> handleAccountNotEnabled(AccountNotEnabledException ex) {
     return Map.of("message", ex.getMessage());
   }
 

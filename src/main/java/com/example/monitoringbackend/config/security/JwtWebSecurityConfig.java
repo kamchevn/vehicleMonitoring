@@ -70,6 +70,7 @@ public class JwtWebSecurityConfig {
                         "/swagger-ui/**",
                         "/v3/api-docs/**",
                         "/api/user/register",
+                        "/api/user/confirm",
                         "/api/user/login")
                     .permitAll()
                     .anyRequest()
