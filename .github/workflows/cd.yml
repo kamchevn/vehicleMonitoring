@@ -44,7 +44,7 @@ jobs:
           script: |
             sudo systemctl stop monitoring
 
-            mv /tmp/monitoring-backend-0.0.1-SNAPSHOT.jar \
+            mv /tmp/target/monitoring-backend-0.0.1-SNAPSHOT.jar \
               /home/ubuntu/vehicleMonitoring/target/monitoring-backend-0.0.1-SNAPSHOT.jar
 
             sudo systemctl start monitoring
@@ -63,4 +63,15 @@ jobs:
 
             sleep 10
 
-            curl --fail http://localhost:8080/actuator/health
+            for i in {1..40}; do
+              if curl -fs http://localhost:8080/actuator/health > /dev/null; then
+                echo "Application is healthy."
+                exit 0
+              fi
+            
+              echo "Waiting for Spring Boot..."
+              sleep 2
+            done
+            
+            echo "Application failed to start."
+            exit 1
