@@ -28,10 +28,16 @@ public class UserApplicationServiceImpl implements UserApplicationService {
             createUserDto.username(),
             createUserDto.password(),
             createUserDto.repeatPassword(),
+            createUserDto.email(),
             createUserDto.name(),
             createUserDto.surname(),
             createUserDto.role());
     return Optional.of(DisplayUserDto.from(user));
+  }
+
+  @Override
+  public Optional<DisplayUserDto> confirmEmail(String token) {
+    return Optional.of(DisplayUserDto.from(userService.confirmEmail(token)));
   }
 
   @Override

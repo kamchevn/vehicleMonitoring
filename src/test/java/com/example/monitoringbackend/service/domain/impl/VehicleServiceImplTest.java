@@ -54,7 +54,7 @@ class VehicleServiceImplTest {
 
   @BeforeEach
   void setUp() {
-    owner = new User("alice", "encoded", "Alice", "Smith", Role.ROLE_USER);
+    owner = new User("alice", "encoded", "alice@example.com", "Alice", "Smith", Role.ROLE_USER);
     vehicle =
         new Vehicle(
             "Civic",

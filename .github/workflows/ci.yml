@@ -19,6 +19,15 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v4
 
+      - name: Cache OWASP Dependency-Check database
+        id: dependency-check-cache
+        uses: actions/cache@v4
+        with:
+          path: .dependency-check-data
+          key: dependency-check-${{ runner.os }}-${{ hashFiles('pom.xml') }}
+          restore-keys: |
+            dependency-check-${{ runner.os }}-
+
       - name: Set up Java 17
         uses: actions/setup-java@v4
         with:
@@ -35,8 +44,18 @@ jobs:
       - name: Run SpotBugs
         run: mvn spotbugs:check
 
-      - name: Run tests + build (includes OWASP dependency-check)
-        run: mvn clean verify
+      - name: Run tests + build
+        run: mvn clean verify -Ddependency-check.skip=true
+
+      - name: Run OWASP dependency-check
+        run: |
+          if [ "${{ steps.dependency-check-cache.outputs.cache-hit }}" = "true" ]; then
+            echo "Using cached NVD database (skipping NVD API update)."
+            mvn dependency-check:check -DautoUpdate=false
+          else
+            echo "No cached NVD database; performing one-time update (may take several minutes)."
+            mvn dependency-check:check
+          fi
 
       - name: Upload reports
         if: always()

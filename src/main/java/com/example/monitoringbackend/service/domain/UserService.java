@@ -10,9 +10,12 @@ public interface UserService {
       String username,
       String password,
       String repeatPassword,
+      String email,
       String name,
       String surname,
       Role role);
+
+  User confirmEmail(String token);
 
   User login(String username, String password);
 }

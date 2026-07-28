@@ -16,6 +16,9 @@ public class User implements UserDetails {
 
   private String password;
 
+  @Column(nullable = false, unique = true)
+  private String email;
+
   private String name;
 
   private String surname;
@@ -26,19 +29,22 @@ public class User implements UserDetails {
   private boolean isAccountNonExpired = true;
   private boolean isAccountNonLocked = true;
   private boolean isCredentialsNonExpired = true;
-  private boolean isEnabled = true;
+  private boolean isEnabled = false;
 
   @Enumerated(value = EnumType.STRING)
   private Role role;
 
   public User() {}
 
-  public User(String username, String password, String name, String surname, Role role) {
+  public User(
+      String username, String password, String email, String name, String surname, Role role) {
     this.username = username;
     this.password = password;
+    this.email = email;
     this.name = name;
     this.surname = surname;
     this.role = role;
+    this.isEnabled = false;
   }
 
   @Override
@@ -54,6 +60,14 @@ public class User implements UserDetails {
   @Override
   public String getUsername() {
     return this.username;
+  }
+
+  public String getEmail() {
+    return email;
+  }
+
+  public void setEmail(String email) {
+    this.email = email;
   }
 
   @Override
@@ -74,6 +88,10 @@ public class User implements UserDetails {
   @Override
   public boolean isEnabled() {
     return isEnabled;
+  }
+
+  public void setEnabled(boolean enabled) {
+    isEnabled = enabled;
   }
 
   public String getName() {
