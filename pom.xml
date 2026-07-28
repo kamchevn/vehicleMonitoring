@@ -30,6 +30,7 @@
         <java.version>17</java.version>
         <commons-lang3.version>3.18.0</commons-lang3.version>
         <log4j2.version>2.25.4</log4j2.version>
+        <dependency-check.skip>false</dependency-check.skip>
     </properties>
     <dependencies>
         <dependency>
@@ -226,7 +227,12 @@
                 <artifactId>dependency-check-maven</artifactId>
                 <version>12.2.0</version>
                 <configuration>
+                    <skip>${dependency-check.skip}</skip>
+                    <dataDirectory>${project.basedir}/.dependency-check-data</dataDirectory>
                     <nvdApiKeyEnvironmentVariable>NVD_API_KEY</nvdApiKeyEnvironmentVariable>
+                    <nvdValidForHours>168</nvdValidForHours>
+                    <nvdApiDelay>6500</nvdApiDelay>
+                    <nvdMaxRetryCount>5</nvdMaxRetryCount>
                     <ossIndexAnalyzerEnabled>false</ossIndexAnalyzerEnabled>
                 </configuration>
                 <executions>
