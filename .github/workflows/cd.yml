@@ -35,20 +35,54 @@ jobs:
 
       - name: Restart Application
         uses: appleboy/ssh-action@v1
+        env:
+          CONFIRMATION_BASE_URL: ${{ secrets.CONFIRMATION_BASE_URL }}
+          CONFIRMATION_TOKEN_EXPIRY_HOURS: ${{ secrets.CONFIRMATION_TOKEN_EXPIRY_HOURS }}
+          MAIL_FROM: ${{ secrets.MAIL_FROM }}
+          MAIL_HOST: ${{ secrets.MAIL_HOST }}
+          MAIL_PORT: ${{ secrets.MAIL_PORT }}
+          MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
+          MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+          MAIL_SMTP_AUTH: ${{ secrets.MAIL_SMTP_AUTH }}
+          MAIL_SMTP_STARTTLS: ${{ secrets.MAIL_SMTP_STARTTLS }}
         with:
           host: ${{ secrets.OCI_HOST }}
           username: ${{ secrets.OCI_USER }}
           key: ${{ secrets.OCI_SSH_KEY }}
           port: ${{ secrets.OCI_PORT }}
-
+          envs: CONFIRMATION_BASE_URL,CONFIRMATION_TOKEN_EXPIRY_HOURS,MAIL_FROM,MAIL_HOST,MAIL_PORT,MAIL_USERNAME,MAIL_PASSWORD,MAIL_SMTP_AUTH,MAIL_SMTP_STARTTLS
           script: |
+            set -euo pipefail
+
+            APP_DIR=/home/ubuntu/vehicleMonitoring
+            ENV_FILE="$APP_DIR/mail.env"
+            DROP_IN_DIR=/etc/systemd/system/monitoring.service.d
+
+            mkdir -p "$APP_DIR" "$APP_DIR/target"
+            umask 077
+            {
+              echo "CONFIRMATION_BASE_URL=${CONFIRMATION_BASE_URL}"
+              echo "CONFIRMATION_TOKEN_EXPIRY_HOURS=${CONFIRMATION_TOKEN_EXPIRY_HOURS:-24}"
+              echo "MAIL_FROM=${MAIL_FROM}"
+              echo "MAIL_HOST=${MAIL_HOST}"
+              echo "MAIL_PORT=${MAIL_PORT:-587}"
+              echo "MAIL_USERNAME=${MAIL_USERNAME}"
+              echo "MAIL_PASSWORD=${MAIL_PASSWORD}"
+              echo "MAIL_SMTP_AUTH=${MAIL_SMTP_AUTH:-true}"
+              echo "MAIL_SMTP_STARTTLS=${MAIL_SMTP_STARTTLS:-true}"
+            } > "$ENV_FILE"
+            chmod 600 "$ENV_FILE"
+
+            sudo mkdir -p "$DROP_IN_DIR"
+            printf '%s\n' '[Service]' "EnvironmentFile=-${ENV_FILE}" | sudo tee "$DROP_IN_DIR/mail.conf" > /dev/null
+
+            sudo systemctl daemon-reload
             sudo systemctl stop monitoring
 
             mv /tmp/target/monitoring-backend-0.0.1-SNAPSHOT.jar \
-              /home/ubuntu/vehicleMonitoring/target/monitoring-backend-0.0.1-SNAPSHOT.jar
+              "$APP_DIR/target/monitoring-backend-0.0.1-SNAPSHOT.jar"
 
             sudo systemctl start monitoring
-
             sudo systemctl status monitoring --no-pager
 
       - name: Health Check
