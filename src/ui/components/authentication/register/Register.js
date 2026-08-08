@@ -39,7 +39,7 @@ const Register = ({register}) => {
 
         try {
             await register(payload);
-            navigate("/login");
+            navigate("/email-verification");
         } catch (err) {
             const message = err.response?.data?.message || "Registration failed. Please try again.";
 

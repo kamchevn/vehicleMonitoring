@@ -25,7 +25,17 @@ const useAuth = () => {
         }
     }, []);
 
-    return {register: register, login: login}
+    const confirmEmail = useCallback(async (token) => {
+        try {
+            const response = await userRepository.confirmEmail(token);
+            return response.data;
+        } catch (error) {
+            console.log(error);
+            throw error;
+        }
+    }, []);
+
+    return {register: register, login: login, confirmEmail: confirmEmail}
 }
 
 export default useAuth;
