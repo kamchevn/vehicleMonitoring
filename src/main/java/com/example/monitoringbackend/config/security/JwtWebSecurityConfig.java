@@ -60,6 +60,7 @@ public class JwtWebSecurityConfig {
             csrf ->
                 csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                     .csrfTokenRequestHandler(new SpaCsrfTokenRequestHandler()))
+                    .ignoringRequestMatchers("/api/**"))
         .cors(corsCustomizer -> corsCustomizer.configurationSource(corsConfigurationSource()))
         .authorizeHttpRequests(
             authorizeHttpRequestsCustomizer ->
