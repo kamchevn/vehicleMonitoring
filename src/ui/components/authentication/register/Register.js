@@ -13,6 +13,7 @@ const Register = ({register}) => {
     const [username,setUsername] = useState("");
     const [password,setPassword] = useState("");
     const [repeatPassword,setRepeatPassword] = useState("");
+    const [email, setEmail] = useState("");
     const [name,setName] = useState("");
     const [surname, setSurname] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
@@ -32,6 +33,7 @@ const Register = ({register}) => {
             username,
             password,
             repeatPassword,
+            email,
             name,
             surname,
             role: "ROLE_USER"
@@ -105,12 +107,34 @@ const Register = ({register}) => {
                                 </Row>
                             </>
                         )}
-                        <Row className="mb-4">
-                            <Form.Group as={Col} md={6} lg={6} controlId="username">
-                                <Form.Label>Username <span style={{ color: "red"}}>*</span></Form.Label>
-                                <Form.Control type="text" value={username} onChange={(e) => setUsername(e.target.value)}/>
-                            </Form.Group>
-                        </Row>
+                        {!isMobile && (
+                            <Row className="mb-4">
+                                <Form.Group as={Col} md={6} lg={6} controlId="username">
+                                    <Form.Label>Username <span style={{ color: "red"}}>*</span></Form.Label>
+                                    <Form.Control type="text" value={username} onChange={(e) => setUsername(e.target.value)}/>
+                                </Form.Group>
+                                <Form.Group as={Col} md={6} lg={6} controlId="email">
+                                    <Form.Label>Email <span style={{ color: "red"}}>*</span></Form.Label>
+                                    <Form.Control type="email" value={email} onChange={(e) => setEmail(e.target.value)}/>
+                                </Form.Group>
+                            </Row>
+                        )}
+                        {isMobile && (
+                            <>
+                                <Row className="mb-4">
+                                    <Form.Group as={Col} md={6} lg={6} controlId="username">
+                                        <Form.Label>Username <span style={{ color: "red"}}>*</span></Form.Label>
+                                        <Form.Control type="text" value={username} onChange={(e) => setUsername(e.target.value)}/>
+                                    </Form.Group>
+                                </Row>
+                                <Row className="mb-4">
+                                    <Form.Group as={Col} md={6} lg={6} controlId="email">
+                                        <Form.Label>Email <span style={{ color: "red"}}>*</span></Form.Label>
+                                        <Form.Control type="email" value={email} onChange={(e) => setEmail(e.target.value)}/>
+                                    </Form.Group>
+                                </Row>
+                            </>
+                        )}
                         {!isMobile && (
                             <Row className="mb-4">
                                 <Form.Group as={Col} md={6} lg={6} controlId="password">
