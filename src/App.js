@@ -10,6 +10,8 @@ import VehicleInfoPage from "./ui/pages/VehicleInfoPage/VehicleInfoPage";
 import ServiceInfoPage from "./ui/pages/CheckInfoPage/ServiceInfoPage";
 import RegisterPage from "./ui/pages/RegisterPage/RegisterPage";
 import LoginPage from "./ui/pages/LoginPage/LoginPage";
+import EmailVerificationNotePage from "./ui/pages/EmailVerificationNotePage/EmailVerificationNotePage";
+import ConfirmEmailPage from "./ui/pages/ConfirmEmailPage/ConfirmEmailPage";
 
 const App = () => {
   return (
@@ -17,6 +19,8 @@ const App = () => {
         <Routes>
           <Route path="/" element={<Layout/>}></Route>
           <Route path="/register" element={<RegisterPage/>}></Route>
+          <Route path="/email-verification" element={<EmailVerificationNotePage/>}></Route>
+          <Route path="/confirm-email" element={<ConfirmEmailPage/>}></Route>
           <Route path="/login" element={<LoginPage/>}></Route>
           <Route path="/vehicles" element={<VehiclesPage/>}></Route>
           <Route path="/vehicles/:id" element={<VehicleInfoPage/>}></Route>

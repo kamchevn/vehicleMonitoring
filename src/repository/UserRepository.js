@@ -11,6 +11,12 @@ const UserRepository = {
             headers: { "Content-Type": "application/json" }
         });
     },
+    confirmEmail: async (token) => {
+        return await axiosInstance.get("/user/confirm", {
+            params: { token },
+            headers: { "Content-Type": "application/json" }
+        });
+    },
 };
 
 export default UserRepository;

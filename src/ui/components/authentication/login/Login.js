@@ -1,9 +1,9 @@
 import "./Login.css"
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
-import {useState} from "react";
-import {useNavigate} from "react-router";
-import {Card, Form} from "react-bootstrap";
+import {useEffect, useState} from "react";
+import {useLocation, useNavigate} from "react-router";
+import {Alert, Card, Form} from "react-bootstrap";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import {useMediaQuery} from "../../../../hooks/useMediaQuery";
@@ -15,10 +15,21 @@ const Login = ({login}) => {
     const [password,setPassword] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
     const [show, setShow] = useState(false);
+    const [alertVariant, setAlertVariant] = useState("");
+    const [alertMessage, setAlertMessage] = useState("");
     const navigate = useNavigate();
+    const location = useLocation();
 
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
+
+    useEffect(() => {
+        if (location.state?.alertMessage) {
+            setAlertVariant(location.state.alertVariant || "info");
+            setAlertMessage(location.state.alertMessage);
+            navigate(location.pathname, { replace: true, state: {} });
+        }
+    }, [location, navigate]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -68,6 +79,16 @@ const Login = ({login}) => {
             <Card border="dark" className={isMobile ? "mobile" : "pc"}>
                 <Card.Header>Login</Card.Header>
                 <Card.Body>
+                    {alertMessage && (
+                        <Alert
+                            className="border-dark mb-3"
+                            variant={alertVariant}
+                            onClose={() => setAlertMessage("")}
+                            dismissible
+                        >
+                            {alertMessage}
+                        </Alert>
+                    )}
                     <Form>
                         {!isMobile && (
                             <Row className="mb-4">
