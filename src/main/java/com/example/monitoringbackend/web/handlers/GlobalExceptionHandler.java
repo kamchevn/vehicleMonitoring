@@ -66,7 +66,7 @@ public class GlobalExceptionHandler {
     String message = ex.getBindingResult().getFieldErrors().get(0).getDefaultMessage();
     return Map.of("message", message);
   }
-  
+
   @ExceptionHandler(AccessDeniedException.class)
   @ResponseStatus(HttpStatus.FORBIDDEN)
   public Map<String, String> handleAccessDenied(AccessDeniedException ex) {
