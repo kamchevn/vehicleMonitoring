@@ -3,6 +3,7 @@ package com.example.monitoringbackend.web;
 import com.example.monitoringbackend.exceptions.IntervalDoesNotMatchException;
 import com.example.monitoringbackend.exceptions.VehicleNotFoundException;
 import com.example.monitoringbackend.model.dto.DisplayVehicleDto;
+import com.example.monitoringbackend.security.ResourceAccessGuard;
 import com.example.monitoringbackend.service.application.VehicleApplicationService;
 import com.example.monitoringbackend.service.domain.VehicleService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -22,7 +23,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@CrossOrigin("*")
 @RequestMapping("/api/vehicle")
 @Tag(
     name = "Vehicle API",
@@ -34,10 +34,15 @@ public class VehicleController {
 
   private final VehicleApplicationService vehicleService;
   private final VehicleService domainService;
+  private final ResourceAccessGuard accessGuard;
 
-  public VehicleController(VehicleApplicationService vehicleService, VehicleService domainService) {
+  public VehicleController(
+      VehicleApplicationService vehicleService,
+      VehicleService domainService,
+      ResourceAccessGuard accessGuard) {
     this.vehicleService = vehicleService;
     this.domainService = domainService;
+    this.accessGuard = accessGuard;
   }
 
   @Operation(
@@ -75,8 +80,10 @@ public class VehicleController {
         @ApiResponse(responseCode = "200"),
         @ApiResponse(responseCode = "400", description = "Vehicle with id 'id' doesn't exist.")
       })
-  public ResponseEntity<?> getVehicleById(@PathVariable Long id) {
+  public ResponseEntity<?> getVehicleById(
+      @PathVariable Long id, @AuthenticationPrincipal UserDetails user) {
     try {
+      accessGuard.requireVehicleAccess(user, id);
       return ResponseEntity.ok(vehicleService.findById(id));
     } catch (VehicleNotFoundException ex) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
@@ -117,7 +124,7 @@ public class VehicleController {
       summary = "Update an existing vehicle",
       description =
           "Takes all the parameters submitted from the form, checks for errors, finds the vehicle by id and updates the content for that vehicle in the database.")
-  @PostMapping("/edit/{id}")
+  @PutMapping("/edit/{id}")
   public ResponseEntity<?> editVehicle(
       @PathVariable Long id,
       @RequestParam String name,
@@ -131,6 +138,7 @@ public class VehicleController {
       @RequestParam String insertPeriodType,
       @AuthenticationPrincipal UserDetails user) {
     try {
+      accessGuard.requireVehicleAccess(user, id);
       return ResponseEntity.ok(
           vehicleService.editVehicle(
               id,
@@ -150,9 +158,11 @@ public class VehicleController {
   }
 
   @Operation(summary = "Delete a vehicle", description = "Deletes a vehicle by it's id.")
-  @GetMapping("/delete/{id}")
-  public ResponseEntity<?> deleteVehicle(@PathVariable Long id) {
+  @DeleteMapping("/delete/{id}")
+  public ResponseEntity<?> deleteVehicle(
+      @PathVariable Long id, @AuthenticationPrincipal UserDetails user) {
     try {
+      accessGuard.requireVehicleAccess(user, id);
       return ResponseEntity.ok(vehicleService.deleteVehicle(id));
     } catch (VehicleNotFoundException ex) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
@@ -169,8 +179,10 @@ public class VehicleController {
       @RequestParam String unitType,
       @RequestParam String amount,
       @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime insertTime,
-      @RequestParam boolean late) {
+      @RequestParam boolean late,
+      @AuthenticationPrincipal UserDetails user) {
     try {
+      accessGuard.requireVehicleAccess(user, vehicleId);
       Integer toAdd = Integer.parseInt(amount);
       domainService.insertDistanceOrFuelForVehicle(vehicleId, unitType, toAdd, insertTime, late);
       return ResponseEntity.ok(

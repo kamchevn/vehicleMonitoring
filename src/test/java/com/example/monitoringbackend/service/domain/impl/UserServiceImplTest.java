@@ -73,7 +73,7 @@ class UserServiceImplTest {
 
     User result =
         userService.registerUser(
-            "bob", "Password1!", "Password1!", "bob@example.com", "Bob", "Jones", Role.ROLE_USER);
+            "bob", "Password1!", "Password1!", "bob@example.com", "Bob", "Jones");
 
     ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
     verify(userRepository).save(userCaptor.capture());
@@ -100,18 +100,31 @@ class UserServiceImplTest {
   }
 
   @Test
+  void registerUser_alwaysAssignsTheUserRole() {
+    when(userRepository.findByUsername("bob")).thenReturn(Optional.empty());
+    when(userRepository.findByEmail("bob@example.com")).thenReturn(Optional.empty());
+    when(passwordEncoder.encode("Password1!")).thenReturn("encoded");
+    when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
+    when(confirmationTokenRepository.save(any(EmailConfirmationToken.class)))
+        .thenAnswer(inv -> inv.getArgument(0));
+
+    User result =
+        userService.registerUser(
+            "bob", "Password1!", "Password1!", "bob@example.com", "Bob", "Jones");
+
+    ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
+    verify(userRepository).save(userCaptor.capture());
+    assertEquals(Role.ROLE_USER, userCaptor.getValue().getRole());
+    assertEquals(Role.ROLE_USER, result.getRole());
+  }
+
+  @Test
   void registerUser_throws_whenPasswordsDoNotMatch() {
     assertThrows(
         PasswordsDoNotMatchException.class,
         () ->
             userService.registerUser(
-                "bob",
-                "Password1!",
-                "Password2!",
-                "bob@example.com",
-                "Bob",
-                "Jones",
-                Role.ROLE_USER));
+                "bob", "Password1!", "Password2!", "bob@example.com", "Bob", "Jones"));
     verify(userRepository, never()).save(any());
     verify(emailService, never()).sendConfirmationEmail(anyString(), anyString(), anyString());
   }
@@ -122,7 +135,7 @@ class UserServiceImplTest {
         InvalidPasswordFormatException.class,
         () ->
             userService.registerUser(
-                "bob", "password", "password", "bob@example.com", "Bob", "Jones", Role.ROLE_USER));
+                "bob", "password", "password", "bob@example.com", "Bob", "Jones"));
     verify(userRepository, never()).save(any());
   }
 
@@ -135,13 +148,7 @@ class UserServiceImplTest {
         UsernameAlreadyExistsException.class,
         () ->
             userService.registerUser(
-                "bob",
-                "Password1!",
-                "Password1!",
-                "bob@example.com",
-                "Bob",
-                "Jones",
-                Role.ROLE_USER));
+                "bob", "Password1!", "Password1!", "bob@example.com", "Bob", "Jones"));
     verify(userRepository, never()).save(any());
   }
 
@@ -156,13 +163,7 @@ class UserServiceImplTest {
         EmailAlreadyExistsException.class,
         () ->
             userService.registerUser(
-                "bob",
-                "Password1!",
-                "Password1!",
-                "bob@example.com",
-                "Bob",
-                "Jones",
-                Role.ROLE_USER));
+                "bob", "Password1!", "Password1!", "bob@example.com", "Bob", "Jones"));
     verify(userRepository, never()).save(any());
   }
 

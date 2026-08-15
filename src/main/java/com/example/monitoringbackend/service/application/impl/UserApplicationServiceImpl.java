@@ -30,8 +30,7 @@ public class UserApplicationServiceImpl implements UserApplicationService {
             createUserDto.repeatPassword(),
             createUserDto.email(),
             createUserDto.name(),
-            createUserDto.surname(),
-            createUserDto.role());
+            createUserDto.surname());
     return Optional.of(DisplayUserDto.from(user));
   }
 

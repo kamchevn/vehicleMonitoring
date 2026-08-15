@@ -21,7 +21,7 @@ jobs:
           cache: maven
 
       - name: Build with Maven
-        run: mvn clean package -DskipTests
+        run: mvn clean package
 
       - name: Copy JAR
         uses: appleboy/scp-action@v0.1.7
@@ -36,6 +36,7 @@ jobs:
       - name: Restart Application
         uses: appleboy/ssh-action@v1
         env:
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
           CONFIRMATION_BASE_URL: ${{ secrets.CONFIRMATION_BASE_URL }}
           CONFIRMATION_TOKEN_EXPIRY_HOURS: ${{ secrets.CONFIRMATION_TOKEN_EXPIRY_HOURS }}
           MAIL_FROM: ${{ secrets.MAIL_FROM }}
@@ -50,7 +51,7 @@ jobs:
           username: ${{ secrets.OCI_USER }}
           key: ${{ secrets.OCI_SSH_KEY }}
           port: ${{ secrets.OCI_PORT }}
-          envs: CONFIRMATION_BASE_URL,CONFIRMATION_TOKEN_EXPIRY_HOURS,MAIL_FROM,MAIL_HOST,MAIL_PORT,MAIL_USERNAME,MAIL_PASSWORD,MAIL_SMTP_AUTH,MAIL_SMTP_STARTTLS
+          envs: JWT_SECRET,CONFIRMATION_BASE_URL,CONFIRMATION_TOKEN_EXPIRY_HOURS,MAIL_FROM,MAIL_HOST,MAIL_PORT,MAIL_USERNAME,MAIL_PASSWORD,MAIL_SMTP_AUTH,MAIL_SMTP_STARTTLS
           script: |
             set -euo pipefail
 
@@ -75,6 +76,14 @@ jobs:
               sudo sed -i "/^\[Service\]/a Environment=\"${key}=${escaped}\"" "$SERVICE_FILE"
             }
 
+            # The application refuses to start without a signing key, so fail here with a
+            # clear message rather than after the JAR is already swapped in.
+            if [ -z "${JWT_SECRET:-}" ]; then
+              echo "JWT_SECRET secret is not configured for this repository."
+              exit 1
+            fi
+
+            upsert_environment "JWT_SECRET" "${JWT_SECRET}"
             upsert_environment "CONFIRMATION_BASE_URL" "${CONFIRMATION_BASE_URL}"
             upsert_environment "CONFIRMATION_TOKEN_EXPIRY_HOURS" "${CONFIRMATION_TOKEN_EXPIRY_HOURS:-24}"
             upsert_environment "MAIL_FROM" "${MAIL_FROM}"
