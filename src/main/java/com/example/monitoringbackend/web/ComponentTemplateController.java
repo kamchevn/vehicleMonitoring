@@ -9,7 +9,6 @@ import java.util.List;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@CrossOrigin("*")
 @RequestMapping("/api/template")
 @Tag(
     name = "Component Template API",
@@ -26,7 +25,7 @@ public class ComponentTemplateController {
       description =
           "Finds all of the component templates based on vehicle type (and additional fuel, cooling and driven types if required) and returns the component templates found as a list.")
   @GetMapping("/{vehicleType}")
-  private List<ComponentTemplate> getTemplatesForVehicleType(
+  public List<ComponentTemplate> getTemplatesForVehicleType(
       @PathVariable String vehicleType,
       @RequestParam(required = false) String fuelType,
       @RequestParam(required = false) String coolingType,
@@ -95,7 +94,7 @@ public class ComponentTemplateController {
       description =
           "Finds all of the component templates based on vehicle and component type and returns the component templates found as a list.")
   @GetMapping("/{vehicleType}/{componentType}")
-  private List<ComponentTemplate> getTemplatesForVehicleTypeAndComponentType(
+  public List<ComponentTemplate> getTemplatesForVehicleTypeAndComponentType(
       @PathVariable String vehicleType, @PathVariable String componentType) {
     VehicleType vt = VehicleType.valueOf(vehicleType);
     ComponentType ct = ComponentType.valueOf(componentType);

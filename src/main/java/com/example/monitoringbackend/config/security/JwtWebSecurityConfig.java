@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.function.Supplier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -30,14 +31,33 @@ public class JwtWebSecurityConfig {
 
   private final CustomUsernamePasswordAuthenticationProvider authenticationProvider;
   private final JwtFilter jwtFilter;
+  private final RestAuthenticationEntryPoint authenticationEntryPoint;
+  private final RestAccessDeniedHandler accessDeniedHandler;
 
   @Value("${app.cors.allowed-origins}")
   private String allowedOrigins;
 
   public JwtWebSecurityConfig(
-      CustomUsernamePasswordAuthenticationProvider authenticationProvider, JwtFilter jwtFilter) {
+      CustomUsernamePasswordAuthenticationProvider authenticationProvider,
+      JwtFilter jwtFilter,
+      RestAuthenticationEntryPoint authenticationEntryPoint,
+      RestAccessDeniedHandler accessDeniedHandler) {
     this.authenticationProvider = authenticationProvider;
     this.jwtFilter = jwtFilter;
+    this.authenticationEntryPoint = authenticationEntryPoint;
+    this.accessDeniedHandler = accessDeniedHandler;
+  }
+
+  /**
+   * {@code JwtFilter} is a {@code @Component}, so Spring Boot would also register it as a plain
+   * servlet filter running ahead of the security chain. Disabling that registration keeps
+   * authentication inside the security chain, where the authorization rules apply.
+   */
+  @Bean
+  public FilterRegistrationBean<JwtFilter> jwtFilterRegistration(JwtFilter filter) {
+    FilterRegistrationBean<JwtFilter> registration = new FilterRegistrationBean<>(filter);
+    registration.setEnabled(false);
+    return registration;
   }
 
   @Bean
@@ -59,22 +79,28 @@ public class JwtWebSecurityConfig {
     http.csrf(
             csrf ->
                 csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                    .csrfTokenRequestHandler(new SpaCsrfTokenRequestHandler()))
+                    .csrfTokenRequestHandler(new SpaCsrfTokenRequestHandler())
+                    .ignoringRequestMatchers("/api/**"))
         .cors(corsCustomizer -> corsCustomizer.configurationSource(corsConfigurationSource()))
         .authorizeHttpRequests(
             authorizeHttpRequestsCustomizer ->
                 authorizeHttpRequestsCustomizer
+                    // CORS preflight carries no credentials and must stay open.
                     .requestMatchers(HttpMethod.OPTIONS, "/**")
                     .permitAll()
-                    .requestMatchers(
-                        "/swagger-ui/**",
-                        "/v3/api-docs/**",
-                        "/api/user/register",
-                        "/api/user/confirm",
-                        "/api/user/login")
+                    // Pre-authentication endpoints, the deployment health probe and the docs.
+                    .requestMatchers(PublicEndpoints.patternsArray())
                     .permitAll()
+                    // Cross-tenant listing of every component in the system.
+                    .requestMatchers(HttpMethod.GET, "/api/component")
+                    .hasAuthority("ROLE_ADMIN")
                     .anyRequest()
-                    .permitAll())
+                    .authenticated())
+        .exceptionHandling(
+            exceptionHandlingConfigurer ->
+                exceptionHandlingConfigurer
+                    .authenticationEntryPoint(authenticationEntryPoint)
+                    .accessDeniedHandler(accessDeniedHandler))
         .sessionManagement(
             sessionManagementConfigurer ->
                 sessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

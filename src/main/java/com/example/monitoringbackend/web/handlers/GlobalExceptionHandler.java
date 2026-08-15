@@ -3,6 +3,7 @@ package com.example.monitoringbackend.web.handlers;
 import com.example.monitoringbackend.exceptions.*;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -64,5 +65,21 @@ public class GlobalExceptionHandler {
   public Map<String, String> handleValidation(MethodArgumentNotValidException ex) {
     String message = ex.getBindingResult().getFieldErrors().get(0).getDefaultMessage();
     return Map.of("message", message);
+  }
+  
+  @ExceptionHandler(AccessDeniedException.class)
+  @ResponseStatus(HttpStatus.FORBIDDEN)
+  public Map<String, String> handleAccessDenied(AccessDeniedException ex) {
+    return Map.of("message", "You do not have permission to access this resource.");
+  }
+
+  @ExceptionHandler({
+    VehicleNotFoundException.class,
+    ComponentNotFoundException.class,
+    ServiceNotFoundException.class
+  })
+  @ResponseStatus(HttpStatus.NOT_FOUND)
+  public Map<String, String> handleNotFound(RuntimeException ex) {
+    return Map.of("message", ex.getMessage());
   }
 }

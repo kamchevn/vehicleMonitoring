@@ -54,8 +54,7 @@ public class UserServiceImpl implements UserService {
       String repeatPassword,
       String email,
       String name,
-      String surname,
-      Role role) {
+      String surname) {
     if (!password.equals(repeatPassword)) {
       throw new PasswordsDoNotMatchException();
     }
@@ -75,7 +74,10 @@ public class UserServiceImpl implements UserService {
       throw new EmailAlreadyExistsException(email);
     }
 
-    User user = new User(username, passwordEncoder.encode(password), email, name, surname, role);
+    // Self-service registration always produces a plain user. Elevated roles are granted
+    // out of band, never from request data.
+    User user =
+        new User(username, passwordEncoder.encode(password), email, name, surname, Role.ROLE_USER);
     user.setEnabled(false);
     User savedUser = userRepository.save(user);
 

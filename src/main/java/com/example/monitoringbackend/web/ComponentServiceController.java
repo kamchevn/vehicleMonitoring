@@ -1,11 +1,13 @@
 package com.example.monitoringbackend.web;
 
 import com.example.monitoringbackend.exceptions.IntervalDoesNotMatchException;
+import com.example.monitoringbackend.exceptions.ServiceNotFoundException;
 import com.example.monitoringbackend.exceptions.VehicleNotFoundException;
 import com.example.monitoringbackend.model.Component;
 import com.example.monitoringbackend.model.ComponentServiceDetail;
 import com.example.monitoringbackend.model.dto.ComponentServiceRequestDto;
 import com.example.monitoringbackend.model.dto.DisplayServiceDto;
+import com.example.monitoringbackend.security.ResourceAccessGuard;
 import com.example.monitoringbackend.service.application.ServiceApplicationService;
 import com.example.monitoringbackend.service.domain.ComponentService;
 import com.example.monitoringbackend.service.domain.ComponentServiceService;
@@ -22,7 +24,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@CrossOrigin("*")
 @RequestMapping("/api/service")
 @Tag(
     name = "Service API",
@@ -34,24 +35,29 @@ public class ComponentServiceController {
   private final ComponentServiceService componentServiceService;
   private final ServiceApplicationService serviceApplicationService;
   private final ComponentService componentService;
+  private final ResourceAccessGuard accessGuard;
 
   public ComponentServiceController(
       ComponentServiceService componentServiceService,
       ServiceApplicationService serviceApplicationService,
-      ComponentService componentService) {
+      ComponentService componentService,
+      ResourceAccessGuard accessGuard) {
     this.componentServiceService = componentServiceService;
     this.serviceApplicationService = serviceApplicationService;
     this.componentService = componentService;
+    this.accessGuard = accessGuard;
   }
 
   @Operation(
       summary = "Returns service by id",
       description = "Finds the service by it's id and returns the service object matching.")
   @GetMapping("/{id}")
-  public ResponseEntity<?> getCheckById(@PathVariable Long id) {
+  public ResponseEntity<?> getCheckById(
+      @PathVariable Long id, @AuthenticationPrincipal UserDetails user) {
     try {
+      accessGuard.requireServiceAccess(user, id);
       return ResponseEntity.ok(serviceApplicationService.findById(id));
-    } catch (VehicleNotFoundException ex) {
+    } catch (ServiceNotFoundException | VehicleNotFoundException ex) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
   }
@@ -83,13 +89,20 @@ public class ComponentServiceController {
           "Find the vehicle by it's id, finds the components selected from the form, updates their counters and conditions, as well as the condition of the vehicle, and creates a new service object in the database.")
   @PostMapping("/{id}")
   public ResponseEntity<String> serviceVehicle(
-      @PathVariable Long id, @RequestBody ComponentServiceRequestDto request) {
+      @PathVariable Long id,
+      @RequestBody ComponentServiceRequestDto request,
+      @AuthenticationPrincipal UserDetails user) {
 
     try {
+      // The path variable is the vehicle being serviced.
+      accessGuard.requireVehicleAccess(user, id);
       List<ComponentServiceDetail> details =
           request.getComponentDetails().stream()
               .map(
                   dto -> {
+                    // Guard each referenced component so a caller cannot service their own
+                    // vehicle using component ids belonging to somebody else.
+                    accessGuard.requireComponentAccess(user, dto.getComponentId());
                     Component component = componentService.findById(dto.getComponentId());
                     ComponentServiceDetail detail = new ComponentServiceDetail();
                     detail.setComponent(component);
